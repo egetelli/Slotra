@@ -1,11 +1,11 @@
 export interface User {
   id: string;
   email: string;
-  fullName: string;
-  role: 'admin' | 'provider' | 'client';
+  full_name: string;
+  role: 'admin' | 'provider' | 'customer';
 }
 
 export interface AuthResponse {
   accessToken: string;
-  user: User;
+  data: User;
 }
