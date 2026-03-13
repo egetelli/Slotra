@@ -1,0 +1,62 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700;800&display=swap");
+
+:host {
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
+  font-family: var(--font-body);
+  display: block;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Arka Plan Blobları (Login'deki gibi ama daha soft) */
+.blob {
+  animation: float 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(100px);
+}
+.blob-2 {
+  animation: float-reverse 30s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(120px);
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(3vw, -4vh) scale(1.1);
+  }
+  100% {
+    transform: translate(-2vw, 3vh) scale(0.95);
+  }
+}
+
+@keyframes float-reverse {
+  0% {
+    transform: translate(0px, 0px) scale(0.95);
+  }
+  50% {
+    transform: translate(-3vw, 4vh) scale(1.1);
+  }
+  100% {
+    transform: translate(2vw, -3vh) scale(1);
+  }
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}

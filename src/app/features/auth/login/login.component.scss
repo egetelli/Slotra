@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700;800&display=swap");
+
+:host {
+  /* Font Tanımlamaları */
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
+  font-family: var(--font-body);
+  display: block;
+}
+
+h1,
+h2,
+h3,
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Gelişmiş Mesh Gradient (Blob) Animasyonları */
+.blob {
+  animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(80px); /* Ekstra yumuşaklık */
+}
+.blob-2 {
+  animation: float-reverse 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(90px);
+}
+.blob-3 {
+  animation: float-vertical 18s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(70px);
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(50px, -80px) scale(1.1);
+  }
+  100% {
+    transform: translate(-30px, 40px) scale(0.9);
+  }
+}
+
+@keyframes float-reverse {
+  0% {
+    transform: translate(0px, 0px) scale(0.9);
+  }
+  50% {
+    transform: translate(-60px, 50px) scale(1.15);
+  }
+  100% {
+    transform: translate(40px, -30px) scale(1);
+  }
+}
+
+@keyframes float-vertical {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  50% {
+    transform: translate(-20px, 60px) scale(0.8);
+  }
+  100% {
+    transform: translate(30px, -40px) scale(1.2);
+  }
+}
+
+/* Hata Titremesi (Shake) */
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* Premium Giriş Animasyonu */
+.animate-entrance {
+  animation: entrance 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
