@@ -21,6 +21,12 @@ export class AuthService {
   token = this._token.asReadonly();
   isAuthenticated = computed(() => !!this._token());
 
+  register(userData: any): Observable<any> {
+    return this.http.post(`${this.API_URL}/register`, userData, {
+      withCredentials: true,
+    });
+  }
+
   login(credentials: any) {
     return this.http
       .post<AuthResponse>(`${this.API_URL}/login`, credentials, {

@@ -1,13 +1,18 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; // Form işlemleri eklendi
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
+import { ProviderService } from '../../../core/services/provider.service';
+import { ServiceService } from '../../../core/services/service.service';
+import { Provider } from '../../../core/models/provider.model';
+import { ServiceItem } from '../../../core/models/service-item.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule], // ReactiveFormsModule eklendi
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -15,6 +20,15 @@ export class DashboardComponent implements OnInit {
   authService = inject(AuthService);
   appointmentService = inject(AppointmentService);
   private router = inject(Router);
+  private fb = inject(FormBuilder);
+
+  // Servisleri Inject ediyoruz
+  private providerService = inject(ProviderService);
+  private serviceService = inject(ServiceService);
+
+  // Verileri tutacağımız Signal'ler
+  providers = signal<Provider[]>([]);
+  services = signal<ServiceItem[]>([]);
 
   // Menü Yönetimi
   activeTab = signal('Dashboard');
@@ -45,9 +59,58 @@ export class DashboardComponent implements OnInit {
     },
   ];
 
+  // Modal ve Form State
+  showCreateModal = signal(false);
+  isCreating = signal(false);
+
+  // Randevu Oluşturma Formu (Backend payload'ı ile birebir uyumlu)
+  appointmentForm = this.fb.group({
+    providerId: ['', Validators.required],
+    serviceId: ['', Validators.required],
+    slotTime: ['', Validators.required],
+  });
+
   ngOnInit() {
-    // Component yüklendiğinde servise veri çekme emrini veriyoruz
+    // 1. Sayfa açıldığında mevcut randevuları yükle
     this.appointmentService.fetchUpcomingAppointments();
+
+    // 2. Sadece uzmanları (Providers) yükle (Hizmetleri BAŞLANGIÇTA YÜKLEMİYORUZ)
+    this.providerService.getProviders().subscribe({
+      next: (data) => this.providers.set(data),
+      error: (err) => console.error('Uzmanlar yüklenemedi', err),
+    });
+
+    // 3. Formdaki 'providerId' seçimini anlık dinle! (Cascading Büyüsü)
+    this.appointmentForm
+      .get('providerId')
+      ?.valueChanges.subscribe((selectedProviderId) => {
+        if (selectedProviderId) {
+          // Yeni uzman seçildi! Önce alttaki hizmet seçimini temizle
+          this.appointmentForm.get('serviceId')?.reset('');
+
+          // Sadece bu uzmana ait hizmetleri getir ve services sinyaline bas
+          this.serviceService
+            .getServicesByProvider(selectedProviderId)
+            .subscribe({
+              next: (data) => this.services.set(data),
+              error: (err) => console.error('Hizmetler yüklenemedi', err),
+            });
+        }
+      });
+  }
+
+  loadProviders() {
+    this.providerService.getProviders().subscribe({
+      next: (data) => this.providers.set(data),
+      error: (err) => console.error('Uzmanlar yüklenemedi', err),
+    });
+  }
+
+  loadServices() {
+    this.serviceService.getActiveServices().subscribe({
+      next: (data) => this.services.set(data),
+      error: (err) => console.error('Hizmetler yüklenemedi', err),
+    });
   }
 
   userInitials() {
@@ -62,7 +125,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Backend'den gelen statüleri CSS classlarına çeviren helper
   getStatusBadgeClass(status: string): string {
     switch (status) {
       case 'booked':
@@ -78,7 +140,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // Backend'den gelen statüleri Türkçe metne çeviren helper
   getStatusText(status: string): string {
     const statusMap: Record<string, string> = {
       booked: 'Onaylandı',
@@ -87,5 +148,70 @@ export class DashboardComponent implements OnInit {
       completed: 'Tamamlandı',
     };
     return statusMap[status] || status;
+  }
+
+  // YENİ: Modal Fonksiyonları
+  openCreateModal() {
+    this.showCreateModal.set(true);
+  }
+
+  closeCreateModal() {
+    this.showCreateModal.set(false);
+    this.appointmentForm.reset(); // Kapatınca formu temizle
+  }
+
+  // YENİ: Randevuyu Backend'e Gönderme
+  submitNewAppointment() {
+    if (this.appointmentForm.invalid) return;
+
+    this.isCreating.set(true);
+
+    const formValues = this.appointmentForm.getRawValue();
+
+    // datetime-local input'undan gelen veriyi (örn: 2026-03-10T09:00)
+    // ISO formatına (backend'in istediği Z formatına) çeviriyoruz.
+    const payload = {
+      providerId: formValues.providerId!,
+      serviceId: formValues.serviceId!,
+      slotTime: new Date(formValues.slotTime!).toISOString(),
+    };
+
+    // Gerçek API isteğini atıyoruz
+    this.appointmentService.createAppointment(payload).subscribe({
+      next: () => {
+        this.isCreating.set(false);
+        this.closeCreateModal();
+        // Sayfayı yenilemeye gerek kalmadan servis sinyali güncellediği için tablo anında dolacak!
+      },
+      error: (err) => {
+        console.error('Randevu oluşturulamadı:', err);
+        this.isCreating.set(false);
+        alert(err.error?.message || 'Randevu oluşturulurken bir hata oluştu.');
+      },
+    });
+  }
+
+  // Randevu İptal İşlemi
+  cancelAppointment(appointmentId: string) {
+    // Yanlışlıkla tıklamaları önlemek için yerleşik tarayıcı onayı
+    const isConfirmed = window.confirm(
+      'Bu randevuyu iptal etmek istediğinize emin misiniz?',
+    );
+
+    if (isConfirmed) {
+      this.appointmentService.cancelAppointment(appointmentId).subscribe({
+        next: () => {
+          // Servisteki 'tap' operatörü sinyali zaten güncelliyor.
+          // Tablodaki durum anında "İptal" olarak değişecek!
+          console.log('Randevu başarıyla iptal edildi.');
+        },
+        error: (err) => {
+          console.error('İptal işlemi başarısız:', err);
+          alert(
+            err.error?.message || 'Randevu iptal edilirken bir hata oluştu.',
+          );
+        },
+      });
+    }
   }
 }

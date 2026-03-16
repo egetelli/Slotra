@@ -45,7 +45,7 @@ export interface Availability {
 // ----------------------------------------------------
 
 export interface Appointment {
-  id: string | number;
+  id: string;
   user_id: string | number; // Randevuyu alan müşteri
   provider_id: string | number; // Randevunun alındığı uzman
   service_id: string | number; // Alınan hizmet
@@ -55,7 +55,7 @@ export interface Appointment {
   total_price: number; // 300 vb.
 
   // NOT: UI'da listeleme yaparken backend'in JOIN yapıp göndermesini beklediğimiz UI-Friendly alanlar:
-  client_name?: string; // User tablosundan (Müşteri adı)
+  customer_name?: string; // User tablosundan (Müşteri adı)
   provider_name?: string; // User tablosundan (Uzman adı)
   service_name?: string; // Service tablosundan (Hizmet adı)
 }
