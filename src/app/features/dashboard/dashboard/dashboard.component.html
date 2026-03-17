@@ -11,16 +11,9 @@
 
     <aside
         class="relative z-20 w-64 flex flex-col bg-white/60 backdrop-blur-2xl border-r border-white/80 shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
-        <div class="h-20 flex items-center px-8">
-            <div
-                class="w-10 h-10 bg-gradient-to-br from-[#4F46E5] to-[#06B6D4] rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/20 mr-3">
-                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    <rect x="7" y="12" width="4" height="4" rx="1" fill="currentColor" />
-                </svg>
-            </div>
-            <span class="font-heading text-2xl font-bold tracking-tight text-slate-900">Slotra</span>
+        <div class="h-24 flex items-center justify-center px-6">
+            <img src="/assets/logo.jpg" alt="Slotra Logo" (click)="goDashboard()"
+                class="h-24 w-auto object-contain transition-all duration-300 hover:brightness-110 active:scale-95 cursor-pointer">
         </div>
 
         <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -111,29 +104,47 @@
                     <div
                         class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3">
                     </div>
+
                     <div
                         class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                         <div>
                             <span
-                                class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[13px] font-semibold tracking-wide text-slate-200 mb-4">BUGÜNÜN
-                                ÖZETİ</span>
-                            <h2 class="font-heading text-3xl font-bold mb-2">₺4,250<span
-                                    class="text-lg text-slate-400 font-medium"> Beklenen Kazanç</span></h2>
-                            <p class="text-slate-300">Bugün 8 randevunuz var, 3'ü tamamlandı.</p>
+                                class="inline-block px-3 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[13px] font-semibold tracking-wide text-slate-200 mb-4 uppercase">
+                                Bugünün Özeti
+                            </span>
+                            <h2 class="font-heading text-3xl font-bold mb-2">
+                                ₺{{ stats().todayEarnings | number:'1.0-0' }}
+                                <span class="text-lg text-slate-400 font-medium"> Beklenen Kazanç</span>
+                            </h2>
+                            <p class="text-slate-300">
+                                Bugün {{ stats().todayCount }} randevunuz var, {{ stats().completedToday }} tanesi
+                                onaylı.
+                            </p>
                         </div>
+
+                        @if (stats().nextCustomer; as next) {
                         <div
-                            class="bg-white/10 backdrop-blur-md rounded-[1.5rem] p-4 w-full sm:w-64 border border-white/5">
+                            class="bg-white/10 backdrop-blur-md rounded-[1.5rem] p-4 w-full sm:w-64 border border-white/5 animate-fade-in">
                             <p class="text-[12px] text-slate-400 font-semibold mb-2">Sıradaki Müşteri</p>
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-sm">
-                                    ET</div>
+                                    class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-sm shadow-lg">
+                                    {{ next?.customer_name?.charAt(0)?.toUpperCase() || '?' }}
+                                </div>
                                 <div>
-                                    <p class="font-semibold text-[14px]">Ege Telli</p>
-                                    <p class="text-[12px] text-indigo-300">14:30 - Saç Kesimi</p>
+                                    <p class="font-semibold text-[14px] truncate w-32">{{ next.customer_name }}</p>
+                                    <p class="text-[12px] text-indigo-300 font-medium">
+                                        {{ next.slot_time | date:'HH:mm' }} - {{ next.service_name }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
+                        } @else {
+                        <div
+                            class="bg-white/5 backdrop-blur-sm rounded-[1.5rem] p-4 w-full sm:w-64 border border-dashed border-white/10 flex items-center justify-center">
+                            <p class="text-xs text-slate-400 italic">Sıradaki randevu yok</p>
+                        </div>
+                        }
                     </div>
                 </div>
 
@@ -142,7 +153,7 @@
                     <h2 class="font-heading text-lg font-bold text-slate-900 mb-4">Yönetim Araçları</h2>
                     <div class="space-y-3">
                         <button
-                            class="w-full flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm group">
+                            class="w-full flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm group active:scale-95">
                             <div
                                 class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,7 +164,7 @@
                             <span class="font-semibold text-slate-700 text-[14px]">Takvimi ve Müsaitliği Aç</span>
                         </button>
                         <button
-                            class="w-full flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm group">
+                            class="w-full flex items-center gap-4 p-3 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm group active:scale-95">
                             <div
                                 class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -178,70 +189,63 @@
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
-                            <span
-                                class="text-[12px] font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-md">+15%
-                                Bu Ay</span>
+                            <span class="text-[12px] font-bold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-md">Bu
+                                Ay</span>
                         </div>
                         <p class="text-slate-500 text-[13px] font-medium mt-4">Toplam Randevu (Aylık)</p>
-                        <h4 class="font-heading text-3xl font-bold text-slate-900 mt-1">142</h4>
+                        <h4 class="font-heading text-3xl font-bold text-slate-900 mt-1">{{ stats().monthlyCount }}</h4>
                     </div>
 
                     <div class="bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] p-6 shadow-sm">
                         <h3 class="text-slate-500 text-[13px] font-medium mb-4">Haftalık Doluluk Oranı</h3>
-                        <div class="space-y-3">
+                        <div class="space-y-4">
+                            @for (item of occupancyRates(); track item.day) {
                             <div>
-                                <div class="flex justify-between text-[12px] mb-1"><span
-                                        class="font-semibold text-slate-700">Bugün</span><span
-                                        class="text-slate-500">85%</span></div>
-                                <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 85%"></div>
+                                <div class="flex justify-between text-[12px] mb-1">
+                                    <span class="font-semibold text-slate-700">{{ item.day }}</span>
+                                    <span class="text-slate-500 font-medium">
+                                        %{{ item.percentage | number:'1.0-0' }} {{ item.percentage >= 100 ? '(Dolu)' :
+                                        '' }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                    <div class="h-full transition-all duration-1000 ease-out rounded-full"
+                                        [style.width.%]="item.percentage" [ngClass]="{
+                                'bg-indigo-500': item.percentage < 70,
+                                'bg-cyan-400': item.percentage >= 70 && item.percentage < 100,
+                                'bg-rose-400': item.percentage >= 100
+                             }">
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="flex justify-between text-[12px] mb-1"><span
-                                        class="font-semibold text-slate-700">Yarın</span><span
-                                        class="text-slate-500">60%</span></div>
-                                <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-cyan-400 h-2 rounded-full" style="width: 60%"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-[12px] mb-1"><span
-                                        class="font-semibold text-slate-700">Cuma</span><span
-                                        class="text-slate-500">100% (Dolu)</span></div>
-                                <div class="w-full bg-slate-100 rounded-full h-2">
-                                    <div class="bg-rose-400 h-2 rounded-full" style="width: 100%"></div>
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
 
                 <div
                     class="lg:col-span-2 bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] shadow-sm overflow-hidden flex flex-col">
-
                     <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/40">
                         <div>
                             <h2 class="font-heading text-lg font-bold text-slate-900">Gelen Randevular</h2>
                             <p class="text-[13px] text-slate-500 mt-0.5">Müşterilerinizden gelen son talepler</p>
                         </div>
                         <div class="flex gap-2">
+                            @if (stats().pendingCount > 0) {
                             <span
                                 class="bg-rose-100 text-rose-600 px-3 py-1 rounded-full text-[12px] font-bold animate-pulse">
-                                2 Onay Bekliyor
+                                {{ stats().pendingCount }} Onay Bekliyor
                             </span>
+                            }
                         </div>
                     </div>
 
-                    <!-- SCROLL AREA -->
-                    <div class="flex-1 max-h-[510px] overflow-y-auto">
+                    <div class="flex-1 max-h-[510px] overflow-y-auto custom-scrollbar">
                         <ng-container *ngTemplateOutlet="appointmentsTable"></ng-container>
                     </div>
-
                 </div>
             </div>
             }
-
             @case ('customer') {
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 flex flex-col gap-6">

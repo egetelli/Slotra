@@ -40,13 +40,24 @@ export class AppComponent implements OnInit {
   onCancelClick(id: string) {
     this.uiService.openConfirm(
       'Randevuyu İptal Et',
-      'Bu işlem geri alınamaz.',
+      'Bu randevuyu iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
       'danger',
       () => {
         this.appointmentService.cancelAppointment(id).subscribe({
           next: () => {
-            this.uiService.showToast('Randevu iptal edildi');
-            this.uiService.closeConfirm();
+            this.uiService.showToast(
+              'Randevu başarıyla iptal edildi.',
+              'success',
+            );
+            this.uiService.closeConfirm(); // Başarıda kapat
+          },
+          error: (err) => {
+            // 🌟 Hata mesajını Toastr'a fırlat
+            this.uiService.showToast(
+              err.error?.message || 'Yetki hatası!',
+              'error',
+            );
+            this.uiService.closeConfirm(); // Hata gelse bile modalı kapat ki kullanıcı takılı kalmasın
           },
         });
       },

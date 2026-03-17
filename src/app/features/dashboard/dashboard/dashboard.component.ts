@@ -7,7 +7,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; // Form işlemleri eklendi
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
@@ -84,6 +84,94 @@ export class DashboardComponent implements OnInit {
     providerId: ['', Validators.required],
     serviceId: ['', Validators.required],
     slotTime: ['', Validators.required],
+  });
+
+  // 📊 İSTATİSTİK HESAPLAMALARI
+  stats = computed(() => {
+    const allApts = this.appointmentService.appointments();
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+
+    // 1. Bugünün Beklenen Kazancı (İptal edilmeyenler)
+    const todayEarnings = allApts
+      .filter(
+        (a) => a.slot_time.startsWith(todayStr) && a.status !== 'cancelled',
+      )
+      .reduce((sum, a) => sum + Number(a.total_price), 0);
+
+    // 2. Bugünün Özeti Metni
+    const todayApts = allApts.filter((a) => a.slot_time.startsWith(todayStr));
+    const completedToday = todayApts.filter(
+      (a) => a.status === 'completed' || a.status === 'booked',
+    ).length; // Senaryona göre değişebilir
+
+    // 3. Sıradaki Müşteri (Şu andan sonraki ilk onaylı randevu)
+    const nextCustomer = allApts
+      .filter((a) => new Date(a.slot_time) > now && a.status === 'booked')
+      .sort(
+        (a, b) =>
+          new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
+      )[0];
+
+    // 4. Aylık Toplam Randevu
+    const currentMonth = now.getMonth();
+    const monthlyCount = allApts.filter(
+      (a) => new Date(a.slot_time).getMonth() === currentMonth,
+    ).length;
+
+    // 5. Onay Bekleyen Sayısı
+    const pendingCount = allApts.filter((a) => a.status === 'pending').length;
+
+    return {
+      todayEarnings,
+      todayCount: todayApts.length,
+      completedToday,
+      nextCustomer,
+      monthlyCount,
+      pendingCount,
+    };
+  });
+
+  // 📈 HAFTALIK DOLULUK ORANI (Örnek Mantık)
+  occupancyRates = computed(() => {
+    const allApts = this.appointmentService.appointments();
+    const capacityPerDay = 10; // Günlük randevu kapasiteniz
+    const now = new Date();
+
+    // 1. Haftanın Pazartesi gününü bul
+    const monday = new Date(now);
+    const dayOfWeek = now.getDay(); // 0: Pazar, 1: Pazartesi...
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    monday.setDate(now.getDate() + diffToMonday);
+
+    const weekDaysLabels = [
+      'Pazartesi',
+      'Salı',
+      'Çarşamba',
+      'Perşembe',
+      'Cuma',
+    ];
+
+    return weekDaysLabels.map((label, index) => {
+      const targetDate = new Date(monday);
+      targetDate.setDate(monday.getDate() + index);
+      const dateStr = targetDate.toISOString().split('T')[0];
+      const todayStr = now.toISOString().split('T')[0];
+
+      // İlgili gündeki iptal edilmemiş randevuları say
+      const count = allApts.filter(
+        (a) => a.slot_time.startsWith(dateStr) && a.status !== 'cancelled',
+      ).length;
+
+      const percentage = Math.min((count / capacityPerDay) * 100, 100);
+
+      return {
+        day: label,
+        date: targetDate,
+        percentage,
+        isToday: dateStr === todayStr,
+      };
+    });
   });
 
   ngOnInit() {
@@ -319,4 +407,8 @@ export class DashboardComponent implements OnInit {
       },
     );
   }
+
+goDashboard() {
+  this.router.navigate(['/dashboard']);
+}
 }
