@@ -16,17 +16,20 @@ import { ServiceService } from '../../../core/services/service.service';
 import { Provider } from '../../../core/models/provider.model';
 import { ServiceItem } from '../../../core/models/service-item.model';
 import { SocketService } from '../../../core/services/socket.service';
+import { CalendarComponent } from '../../calendar/calendar.component';
+import { UiService } from '../../../core/services/ui.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule], // ReactiveFormsModule eklendi
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, CalendarComponent], // ReactiveFormsModule eklendi
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   authService = inject(AuthService);
   appointmentService = inject(AppointmentService);
+  uiService = inject(UiService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -260,30 +263,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Randevu İptal İşlemi
-  cancelAppointment(appointmentId: string) {
-    // Yanlışlıkla tıklamaları önlemek için yerleşik tarayıcı onayı
-    const isConfirmed = window.confirm(
-      'Bu randevuyu iptal etmek istediğinize emin misiniz?',
-    );
-
-    if (isConfirmed) {
-      this.appointmentService.cancelAppointment(appointmentId).subscribe({
-        next: () => {
-          // Servisteki 'tap' operatörü sinyali zaten güncelliyor.
-          // Tablodaki durum anında "İptal" olarak değişecek!
-          console.log('Randevu başarıyla iptal edildi.');
-        },
-        error: (err) => {
-          console.error('İptal işlemi başarısız:', err);
-          alert(
-            err.error?.message || 'Randevu iptal edilirken bir hata oluştu.',
-          );
-        },
-      });
-    }
-  }
-
   // --- MÜŞTERİ METOTLARI ---
   loadCustomerDashboard() {
     // Sadece müşterinin kendi randevularını getirir (GET /api/appointments/my)
@@ -302,24 +281,42 @@ export class DashboardComponent implements OnInit {
     console.log('Admin verileri yükleniyor...');
   }
 
-  // Randevu Onaylama Aksiyonu
   approveAppointment(id: string) {
-    // Kullanıcıya şık bir onay kutusu çıkaralım (Opsiyonel: Kendi modalınızı da kullanabilirsiniz)
-    const confirmApprove = confirm(
-      'Bu randevuyu onaylamak istediğinize emin misiniz?',
+    this.uiService.openConfirm(
+      'Randevuyu Onayla',
+      'Bu randevuyu onaylamak istediğinize emin misiniz? Müşteriye bildirim gönderilecektir.',
+      'success',
+      () => {
+        this.appointmentService.approveAppointment(id).subscribe({
+          next: () => {
+            this.uiService.showToast('Randevu başarıyla onaylandı!', 'success');
+            this.uiService.closeConfirm();
+          },
+          error: (err) =>
+            this.uiService.showToast(err.error?.message || 'Hata!', 'error'),
+        });
+      },
     );
+  }
 
-    if (confirmApprove) {
-      this.appointmentService.approveAppointment(id).subscribe({
-        next: (res) => {
-          // Başarılı olduğunda bir toast mesajı veya log basabiliriz
-          console.log('Randevu başarıyla onaylandı:', res);
-        },
-        error: (err) => {
-          // Hata durumunda kullanıcıyı bilgilendir
-          alert(err.error?.message || 'Randevu onaylanırken bir hata oluştu.');
-        },
-      });
-    }
+  cancelAppointment(id: string) {
+    this.uiService.openConfirm(
+      'Randevuyu İptal Et',
+      'Bu randevuyu iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      'danger',
+      () => {
+        this.appointmentService.cancelAppointment(id).subscribe({
+          next: () => {
+            this.uiService.showToast(
+              'Randevu başarıyla iptal edildi.',
+              'success',
+            );
+            this.uiService.closeConfirm();
+          },
+          error: (err) =>
+            this.uiService.showToast(err.error?.message || 'Hata!', 'error'),
+        });
+      },
+    );
   }
 }

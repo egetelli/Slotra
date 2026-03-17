@@ -1,1 +1,148 @@
 <router-outlet></router-outlet>
+
+@if (uiService.detailModal().show) {
+<div class="fixed inset-0 z-[100000] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-white/10 backdrop-blur-md"
+        [ngClass]="uiService.detailModal().isClosing ? 'animate-fade-out' : 'animate-fade-in'"
+        (click)="uiService.closeDetail()"></div>
+
+    <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-md p-8 rounded-[2rem] shadow-2xl mx-4"
+        [ngClass]="uiService.detailModal().isClosing ? 'animate-scale-down' : 'animate-scale-up'"
+        (click)="$event.stopPropagation()">
+
+        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <h3 class="font-heading text-xl font-bold text-slate-900">Randevu Detayları</h3>
+            <button
+                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full transition-colors flex items-center justify-center active:scale-95"
+                (click)="uiService.closeDetail()">✕</button>
+        </div>
+
+        @if (uiService.detailModal().data; as apt) {
+        <div class="flex flex-col gap-4 mb-8 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Müşteri:</span>
+                <span class="text-base font-bold text-indigo-600">{{ apt.customer_name }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Hizmet:</span>
+                <span class="text-base font-semibold text-slate-800">{{ apt.service_name }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Tarih:</span>
+                <span class="text-base font-semibold text-slate-800">{{ apt.slot_time | date:'dd MMM yyyy, HH:mm'
+                    }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Tutar:</span>
+                <span class="text-lg font-bold text-emerald-600">₺{{ apt.total_price }}</span>
+            </div>
+            <div class="flex justify-between items-center mt-2 pt-4 border-t border-slate-200 border-dashed">
+                <span class="text-sm font-medium text-slate-500">Durum:</span>
+                <span class="px-3 py-1 text-xs font-bold uppercase rounded-full" [ngClass]="{
+                    'bg-emerald-100 text-emerald-700': apt.status === 'booked',
+                    'bg-amber-100 text-amber-700': apt.status === 'pending',
+                    'bg-rose-100 text-rose-700': apt.status === 'cancelled'
+                }">
+                    {{ apt.status === 'booked' ? 'Onaylandı' : apt.status === 'pending' ? 'Bekliyor' : 'İptal Edildi' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            @if (apt.status === 'pending') {
+            <button
+                class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-semibold transition-colors shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 active:scale-95"
+                (click)="onApproveClick(apt.id)">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Onayla
+            </button>
+            }
+            <button
+                class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 py-3 rounded-xl font-semibold transition-colors flex justify-center items-center gap-2 active:scale-95"
+                (click)="onCancelClick(apt.id)">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                İptal Et
+            </button>
+        </div>
+        }
+    </div>
+</div>
+}
+
+@if (uiService.confirmDialog().show) {
+<div class="fixed inset-0 z-[100001] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-white/10 backdrop-blur-md"
+        [ngClass]="uiService.confirmDialog().isClosing ? 'animate-fade-out' : 'animate-fade-in'"
+        (click)="uiService.closeConfirm()"></div>
+
+    <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-sm p-6 rounded-[2rem] shadow-2xl mx-4"
+        [ngClass]="uiService.confirmDialog().isClosing ? 'animate-scale-down' : 'animate-scale-up'">
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-inner"
+                [ngClass]="uiService.confirmDialog().type === 'danger' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'">
+                @if (uiService.confirmDialog().type === 'danger') {
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                } @else {
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                }
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 mb-2">{{ uiService.confirmDialog().title }}</h3>
+            <p class="text-slate-500 text-sm mb-6 px-2 leading-relaxed">{{ uiService.confirmDialog().message }}</p>
+
+            <div class="flex gap-3 w-full">
+                <button (click)="uiService.closeConfirm()"
+                    class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors active:scale-95">
+                    Vazgeç
+                </button>
+                <button (click)="uiService.confirmDialog().action()"
+                    class="flex-1 py-3 px-4 text-white font-semibold rounded-xl transition-all shadow-md active:scale-95"
+                    [ngClass]="uiService.confirmDialog().type === 'danger' ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/30' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30'">
+                    Evet, Eminim
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+@if (uiService.toast().show) {
+<div class="fixed bottom-6 right-6 z-[100002]"
+    [ngClass]="uiService.toast().isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'">
+    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl backdrop-blur-xl border border-white/20"
+        [ngClass]="uiService.toast().type === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-rose-500 text-white shadow-rose-500/20'">
+
+        @if (uiService.toast().type === 'success') {
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        } @else {
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        }
+
+        <p class="font-medium text-[15px] pr-2">{{ uiService.toast().message }}</p>
+
+        <button (click)="uiService.closeToast()"
+            class="p-1 rounded-lg hover:bg-white/20 transition-colors opacity-80 hover:opacity-100">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+</div>
+}

@@ -1,179 +1,261 @@
-/* 🌟 PREMIUM MODAL TASARIMI 🌟 */
+/* ===============================
+   FULLCALENDAR MODERN SAAS UI
+   =============================== */
 
-/* Arka Plan (Backdrop) ve Bulanıklık Efekti */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(15, 23, 42, 0.4); /* Yarı saydam koyu lacivert */
-  backdrop-filter: blur(5px); /* Efsanevi blur efekti */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease-out;
-}
+::ng-deep {
+  /* ===============================
+     THEME VARIABLES
+     =============================== */
 
-/* Modal Kartının Kendisi */
-.modal-card {
-  background: #ffffff;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Derinlik hissi veren gölge */
-  animation: slideUp 0.3s ease-out;
-}
+  --fc-border-color: #eef2f7;
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: transparent;
+  --fc-today-bg-color: #f8fafc;
+  --fc-now-indicator-color: #6366f1;
 
-/* Animasyonlar */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+  .fc {
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      sans-serif;
+    color: #334155;
   }
-  to {
-    opacity: 1;
+
+  /* ===============================
+     CALENDAR CONTAINER
+     =============================== */
+
+  .fc-scrollgrid {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #eef2f7;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 6px 24px rgba(0, 0, 0, 0.04);
+    background: white;
   }
-}
-@keyframes slideUp {
-  from {
-    transform: translateY(30px) scale(0.95);
-    opacity: 0;
+
+  /* ===============================
+     COLUMN HOVER EFFECT
+     =============================== */
+
+  .fc-timegrid-col:hover {
+    background: #f9fafb;
+    transition: background 0.15s ease;
   }
-  to {
-    transform: translateY(0) scale(1);
-    opacity: 1;
+
+  /* ===============================
+     GRID
+     =============================== */
+
+  .fc-theme-standard td,
+  .fc-theme-standard th {
+    border-color: #f1f5f9 !important;
   }
-}
 
-/* Başlık Kısmı */
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #0f172a;
-    font-weight: 700;
+  .fc-timegrid-slot {
+    height: 1.5em !important;
   }
-  .close-btn {
-    background: #f1f5f9;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 1rem;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
-    &:hover {
-      background: #fee2e2;
-      color: #ef4444;
-    }
+  .fc-timegrid-slot-minor {
+    border-top: 1px dashed #e5e7eb !important;
   }
-}
 
-/* Detay Satırları */
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 28px;
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 12px;
+  /* saat yazıları */
 
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.95rem;
+  .fc-timegrid-slot-label-cushion {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 500;
+    padding-right: 10px !important;
+  }
 
-    .label {
+  /* ===============================
+     DAY HEADER
+     =============================== */
+
+  .fc-col-header-cell {
+    padding: 14px 0 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background: white;
+
+    .fc-col-header-cell-cushion {
       color: #64748b;
-      font-weight: 500;
-    }
-    .value {
-      color: #1e293b;
       font-weight: 600;
-      text-align: right;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
-    .customer-name {
-      font-size: 1.1rem;
-      color: #3b82f6;
-    } /* Mavi Vurgu */
-    .price {
-      color: #10b981;
+  }
+
+  /* today column */
+
+  .fc-col-header-cell.fc-day-today {
+    background: #f8fafc;
+
+    .fc-col-header-cell-cushion {
+      color: #6366f1;
       font-weight: 700;
-      font-size: 1.1rem;
     }
   }
-}
 
-/* Renkli Durum Rozetleri */
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  /* ===============================
+     EVENT CARDS
+     =============================== */
 
-  &.booked {
-    background: #d1fae5;
-    color: #059669;
-  }
-  &.pending {
-    background: #fef3c7;
-    color: #d97706;
-  }
-  &.cancelled {
-    background: #fee2e2;
-    color: #dc2626;
-  }
-}
+  .fc-event {
+    border: none !important;
 
-/* Butonlar */
-.modal-footer {
-  display: flex;
-  gap: 12px;
+    border-radius: 8px !important;
 
-  button {
-    flex: 1;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.95rem;
+    margin: 2px 3px !important;
+
+    backdrop-filter: blur(4px);
+
+    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.05),
+      0 4px 8px rgba(0, 0, 0, 0.04);
+
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.18s ease,
+      filter 0.18s ease;
+
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      transform: translateY(-2px) scale(1.01);
+
+      box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.1),
+        0 10px 30px rgba(0, 0, 0, 0.06);
+
+      filter: brightness(1.03);
+
+      z-index: 3;
+    }
   }
 
-  .btn-approve {
-    background: #10b981;
+  /* ===============================
+     EVENT CONTENT
+     =============================== */
+
+  .custom-calendar-event {
+    padding: 2px 6px; /* Padding'i iyice kıstık */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Yazıyı yukarı yasla */
+    height: 100%;
     color: white;
-    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    line-height: 1.1; /* Satır aralığını daralttık */
+
+    .event-title {
+      font-weight: 600;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-subtitle {
+      font-size: 0.65rem;
+      opacity: 0.9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px; /* Boşluğu 1px'e düşürdük */
+    }
+  }
+  /* ===============================
+     NOW INDICATOR
+     =============================== */
+
+  .fc-now-indicator-line {
+    border-top-width: 2px;
+    border-color: #6366f1;
+
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+  }
+
+  .fc-now-indicator-arrow {
+    border-width: 6px;
+  }
+
+  /* ===============================
+     TOOLBAR
+     =============================== */
+
+  .fc-toolbar {
+    margin-bottom: 18px !important;
+  }
+
+  .fc-toolbar-title {
+    font-weight: 700 !important;
+
+    font-size: 1.35rem !important;
+
+    color: #0f172a !important;
+
+    letter-spacing: -0.01em;
+  }
+
+  /* ===============================
+     BUTTONS
+     =============================== */
+
+  .fc-button-primary {
+    background: white !important;
+
+    border: 1px solid #e5e7eb !important;
+
+    color: #475569 !important;
+
+    border-radius: 10px !important;
+
+    padding: 7px 15px !important;
+
+    font-weight: 600 !important;
+
+    font-size: 0.82rem !important;
+
+    text-transform: capitalize !important;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+
+    transition: all 0.15s ease !important;
+
     &:hover {
-      background: #059669;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+      background: #f8fafc !important;
+
+      border-color: #dbe3ee !important;
+
+      color: #0f172a !important;
+
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.45;
     }
   }
 
-  .btn-cancel {
-    background: #fee2e2;
-    color: #dc2626;
-    &:hover {
-      background: #fca5a5;
-      transform: translateY(-2px);
-    }
+  /* active button */
+
+  .fc-button-active {
+    background: linear-gradient(135deg, #6366f1, #22c55e) !important;
+
+    color: white !important;
+
+    border: none !important;
+
+    box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25);
   }
 }
+

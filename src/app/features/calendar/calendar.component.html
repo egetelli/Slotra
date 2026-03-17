@@ -1,49 +1,89 @@
-<div class="calendar-container">
+<div class="calendar-page-wrapper">
+    <div class="calendar-header">
+        <h2 class="text-2xl font-bold text-slate-800">🗓️ Randevu Takvimi</h2>
+        <p class="text-slate-500 text-sm mt-1">Randevularınızı buradan yönetin.</p>
+    </div>
+
+    <div class="calendar-container">
+        <full-calendar [options]="calendarOptions" [events]="calendarEvents()"></full-calendar>
+    </div>
 </div>
 
-<div class="modal-backdrop" *ngIf="isModalOpen()" (click)="closeModal()">
+@if (isModalOpen()) {
+<div class="fixed inset-0 z-[99999] flex items-center justify-center overflow-hidden">
 
-    <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm will-change-[opacity]"
+        [ngClass]="isModalClosing() ? 'animate-fade-out' : 'animate-fade-in'" (click)="closeModal()"></div>
 
-        <div class="modal-header">
-            <h3>Randevu Detayları</h3>
-            <button class="close-btn" (click)="closeModal()">✕</button>
+    <div class="relative bg-white/95 backdrop-blur-lg w-full max-w-md p-8 rounded-[2rem] shadow-2xl will-change-transform"
+        [ngClass]="isModalClosing() ? 'animate-scale-down' : 'animate-scale-up'" (click)="$event.stopPropagation()">
+
+        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <h3 class="font-heading text-xl font-bold text-slate-900">Randevu Detayları</h3>
+            <button
+                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full transition-colors flex items-center justify-center active:scale-95"
+                (click)="closeModal()">
+                ✕
+            </button>
         </div>
 
-        <div class="modal-body" *ngIf="selectedAppointment() as apt">
-            <div class="detail-row">
-                <span class="label">Müşteri:</span>
-                <span class="value customer-name">{{ apt.customer_name }}</span>
+        @if (selectedAppointment(); as apt) {
+        <div class="flex flex-col gap-4 mb-8 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Müşteri:</span>
+                <span class="text-base font-bold text-indigo-600">{{ apt.customer_name }}</span>
             </div>
-            <div class="detail-row">
-                <span class="label">Hizmet:</span>
-                <span class="value">{{ apt.service_name }}</span>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Hizmet:</span>
+                <span class="text-base font-semibold text-slate-800">{{ apt.service_name }}</span>
             </div>
-            <div class="detail-row">
-                <span class="label">Tarih:</span>
-                <span class="value">{{ apt.slot_time | date:'dd MMM yyyy, HH:mm' }}</span>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Tarih:</span>
+                <span class="text-base font-semibold text-slate-800">{{ apt.slot_time | date:'dd MMM yyyy, HH:mm'
+                    }}</span>
             </div>
-            <div class="detail-row">
-                <span class="label">Tutar:</span>
-                <span class="value price">₺{{ apt.total_price }}</span>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-slate-500">Tutar:</span>
+                <span class="text-lg font-bold text-emerald-600">₺{{ apt.total_price }}</span>
             </div>
-            <div class="detail-row">
-                <span class="label">Durum:</span>
-                <span class="status-badge" [ngClass]="apt.status">
+            <div class="flex justify-between items-center mt-2 pt-4 border-t border-slate-200 border-dashed">
+                <span class="text-sm font-medium text-slate-500">Durum:</span>
+                <span class="px-3 py-1 text-xs font-bold uppercase rounded-full" [ngClass]="{
+                'bg-emerald-100 text-emerald-700': apt.status === 'booked',
+                'bg-amber-100 text-amber-700': apt.status === 'pending',
+                'bg-rose-100 text-rose-700': apt.status === 'cancelled'
+              }">
                     {{ apt.status === 'booked' ? 'Onaylandı' : apt.status === 'pending' ? 'Bekliyor' : 'İptal Edildi' }}
                 </span>
             </div>
         </div>
 
-        <div class="modal-footer" *ngIf="selectedAppointment() as apt">
-            <button *ngIf="apt.status === 'pending'" class="btn-approve" (click)="approve(apt.id)">
-                ✓ Randevuyu Onayla
+        <div class="flex gap-3">
+            @if (apt.status === 'pending') {
+            <button
+                class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-semibold transition-colors shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 active:scale-95"
+                (click)="approve(apt.id)">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Onayla
             </button>
+            }
 
-            <button *ngIf="apt.status !== 'cancelled'" class="btn-cancel" (click)="cancel(apt.id)">
-                ✕ İptal Et
+            @if (apt.status !== 'cancelled') {
+            <button
+                class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 py-3 rounded-xl font-semibold transition-colors flex justify-center items-center gap-2 active:scale-95"
+                (click)="cancel(apt.id)">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                İptal Et
             </button>
+            }
         </div>
-
+        }
     </div>
 </div>
+}
+
+
