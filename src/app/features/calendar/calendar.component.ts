@@ -138,7 +138,7 @@ export class CalendarComponent implements OnInit {
 
   handleEventClick(clickInfo: any) {
     const apt = clickInfo.event.extendedProps;
-    this.uiService.openDetail(apt); // 🌟 Sadece bu!
+    this.uiService.openDetail(apt);
   }
 
   closeModal() {

@@ -1,0 +1,110 @@
+<div class="bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] p-6 shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="font-heading text-xl font-bold text-slate-900">Tüm Randevularım</h2>
+            <p class="text-sm text-slate-500 mt-1">Sistemdeki tüm randevu kayıtlarınızın detaylı listesi</p>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-[14px]">
+            <thead class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-100">
+                <tr>
+                    <th class="py-4 px-6">{{ authService.user()?.role === 'provider' ? 'Müşteri' : 'Uzman / Kişi' }}
+                    </th>
+                    <th class="py-4 px-6">Tarih & Saat</th>
+                    <th class="py-4 px-6">Hizmet</th>
+                    <th class="py-4 px-6">Durum</th>
+                    <th class="py-4 px-6 text-right">İşlem</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @if (appointmentService.isLoading()) {
+                @for (i of [1,2,3,4,5]; track i) {
+                <tr class="animate-pulse">
+                    <td class="py-4 px-6">
+                        <div class="h-4 bg-slate-200 rounded w-24"></div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="h-4 bg-slate-200 rounded w-32"></div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="h-4 bg-slate-200 rounded w-20"></div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="h-6 bg-slate-200 rounded-full w-16"></div>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <div class="h-8 bg-slate-200 rounded w-8 ml-auto"></div>
+                    </td>
+                </tr>
+                }
+                }
+                @else if (appointmentService.error()) {
+                <tr>
+                    <td colspan="5" class="py-8 text-center text-rose-600 font-medium bg-rose-50/30">
+                        {{ appointmentService.error() }}
+                    </td>
+                </tr>
+                }
+                @else if (appointmentService.appointments().length === 0) {
+                <tr>
+                    <td colspan="5" class="py-12 text-center text-slate-500 italic">
+                        Henüz bir randevu kaydı bulunmuyor.
+                    </td>
+                </tr>
+                }
+                @else {
+                @for (apt of appointmentService.appointments(); track apt.id) {
+                <tr class="hover:bg-white/60 transition-colors group">
+                    <td class="py-4 px-6 font-semibold text-slate-900">
+                        {{ authService.user()?.role === 'provider' ? apt.customer_name : (apt.provider_name ||
+                        'Bilinmeyen Uzman') }}
+                    </td>
+                    <td class="py-4 px-6 text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ apt.slot_time | date:'dd MMM yyyy, HH:mm' }}
+                        </div>
+                    </td>
+                    <td class="py-4 px-6 text-slate-600">{{ apt.service_name || 'Standart Hizmet' }}</td>
+                    <td class="py-4 px-6">
+                        <span class="px-3 py-1 rounded-full text-[13px] font-semibold"
+                            [ngClass]="getStatusBadgeClass(apt.status)">
+                            {{ getStatusText(apt.status) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right text-sm font-medium">
+                        <div class="flex justify-end gap-2">
+                            @if (authService.user()?.role === 'provider' && apt.status === 'pending') {
+                            <button (click)="approveAppointment(apt.id)"
+                                class="text-emerald-500 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 p-2 rounded-lg transition-all shadow-sm active:scale-95">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                            </button>
+                            }
+                            @if (apt.status === 'booked' || apt.status === 'pending') {
+                            <button (click)="cancelAppointment(apt.id)"
+                                class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-all active:scale-95">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            } @else {
+                            <span class="text-slate-300 pr-3">-</span>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

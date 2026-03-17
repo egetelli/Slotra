@@ -18,10 +18,10 @@ export const routes: Routes = [
       ),
   },
 
-  // 3. 🛡️ KORUMALI ROTALAR GRUBU (Guard Sadece Burada!)
+  // 3. 🛡️ KORUMALI ROTALAR GRUBU
   {
-    path: '', // Boş path ile görünmez bir kapsayıcı oluşturuyoruz
-    canActivate: [authGuard], // Zero-Storage Guard'ımız kapıda bekliyor!
+    path: '',
+    canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
@@ -37,8 +37,14 @@ export const routes: Routes = [
             (m) => m.CalendarComponent,
           ),
       },
-      // İleride 'clients', 'settings' gibi sayfaları da buraya ekleyeceğiz.
-      // Hepsi otomatik olarak authGuard tarafından korunacak!
+      // YENİ EKLENEN ROTA 👇
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import('./features/appointments/appointments.component').then(
+            (m) => m.AppointmentsComponent,
+          ),
+      },
     ],
   },
 

@@ -4,110 +4,70 @@
   --font-heading: "Poppins", sans-serif;
   --font-body: "Inter", sans-serif;
   font-family: var(--font-body);
+
+  /* Sayfanın tam ekrana oturması ve taşmaması için çok kritik! */
   display: block;
+  height: 100%;
 }
 
+/* ==========================================
+   🖋️ TYPOGRAPHY (Yazı Tipleri)
+   ========================================== */
 .font-heading {
   font-family: var(--font-heading);
 }
 
-/* Arka Plan Blobları (Login'deki gibi ama daha soft) */
-.blob {
-  animation: float 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-  filter: blur(100px);
-}
-.blob-2 {
-  animation: float-reverse 30s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-  filter: blur(120px);
+/* ==========================================
+   ✨ SKELETON LOADER (Yükleme Efekti)
+   ========================================== */
+/* Tailwind'in animate-pulse'una ek olarak çok şık bir parlama (shimmer) efekti */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e8f0; /* slate-200 */
 }
 
-@keyframes float {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  50% {
-    transform: translate(3vw, -4vh) scale(1.1);
-  }
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.4) 20%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
   100% {
-    transform: translate(-2vw, 3vh) scale(0.95);
+    transform: translateX(100%);
   }
-}
-
-@keyframes float-reverse {
-  0% {
-    transform: translate(0px, 0px) scale(0.95);
-  }
-  50% {
-    transform: translate(-3vw, 4vh) scale(1.1);
-  }
-  100% {
-    transform: translate(2vw, -3vh) scale(1);
-  }
-}
-
-/* Premium Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
 }
 
 /* ==========================================
-   🌟 PREMIUM MİKRO-ANİMASYONLAR
+   🖱️ CUSTOM SCROLLBAR (Liste içi kaydırmalar)
    ========================================== */
-
-/* 1. Arka planın yumuşakça kararması (Fade In) */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-/* 2. Modal'ın Apple tarzı hafif büyüyerek süzülmesi (Scale & Pop) */
-.animate-scale-up {
-  animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* 3. Bildirimin (Toast) sağ alttan zarifçe kayarak gelmesi */
-.animate-slide-in-right {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* --- Keyframes (Sahneler) --- */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* Sadece HTML'de .custom-scrollbar verdiğimiz listeler bu şık barı kullanır */
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
-  to {
-    opacity: 1;
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
-}
-
-@keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(15px);
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2); /* slate-400 %20 opacity */
+    border-radius: 10px;
   }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(40px) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) translateY(0);
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
   }
 }
