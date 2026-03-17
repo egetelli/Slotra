@@ -1,4 +1,11 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  signal,
+  inject,
+  OnInit,
+  computed,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'; // Form işlemleri eklendi
@@ -8,6 +15,7 @@ import { ProviderService } from '../../../core/services/provider.service';
 import { ServiceService } from '../../../core/services/service.service';
 import { Provider } from '../../../core/models/provider.model';
 import { ServiceItem } from '../../../core/models/service-item.model';
+import { SocketService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,6 +33,11 @@ export class DashboardComponent implements OnInit {
   // Servisleri Inject ediyoruz
   private providerService = inject(ProviderService);
   private serviceService = inject(ServiceService);
+  private socketService = inject(SocketService);
+
+  // Kullanıcının rolünü anlık olarak dinleyen Sinyal
+  currentUser = this.authService.user;
+  userRole = computed(() => this.currentUser()?.role || 'customer');
 
   // Verileri tutacağımız Signal'ler
   providers = signal<Provider[]>([]);
@@ -71,24 +84,80 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit() {
-    // 1. Sayfa açıldığında mevcut randevuları yükle
-    this.appointmentService.fetchUpcomingAppointments();
+    // 1. Soket bağlantısını başlat
+    this.socketService.connect();
 
-    // 2. Sadece uzmanları (Providers) yükle (Hizmetleri BAŞLANGIÇTA YÜKLEMİYORUZ)
+    // 🎧 DİNLEYİCİ 1: Randevu Onaylandığında (Zaten vardı)
+    this.socketService.onEvent('appointment_updated', (data: any) => {
+      console.log('🔔 [Socket] Randevu onaylandı:', data);
+      this.appointmentService.updateAppointmentStatusLocally(
+        data.appointmentId,
+        data.status,
+      );
+    });
+
+    // 🎧 DİNLEYİCİ 2: YENİ Randevu Geldiğinde (EKLEME)
+    this.socketService.onEvent('new_appointment', (data: any) => {
+      console.log('🔔 [Socket] Yeni randevu düştü:', data);
+      // Gelen randevuyu tabloya anında ekle
+      this.appointmentService.addNewAppointmentLocally(data.appointment);
+
+      // Opsiyonel: Tarayıcıda uyarı (Toast) gösterebilirsin
+      // alert('Yeni bir randevu talebi geldi!');
+    });
+
+    // 🎧 DİNLEYİCİ 3: Randevu İptal Edildiğinde (SİLME/GÜNCELLEME)
+    this.socketService.onEvent('appointment_cancelled', (data: any) => {
+      console.log('🔔 [Socket] Randevu iptal edildi:', data);
+      // İptal edilen randevunun durumunu tabloda 'cancelled' (kırmızı) yap
+      this.appointmentService.updateAppointmentStatusLocally(
+        data.appointmentId,
+        'cancelled',
+      );
+    });
+  }
+
+  constructor() {
+    this.initRoleEffect();
+  }
+
+  private initRoleEffect() {
+    effect(() => {
+      const user = this.authService.user();
+      if (!user) return;
+
+      switch (user.role) {
+        case 'customer':
+          this.loadCustomerDashboard();
+          this.initializeAppointmentFormLogic();
+          break;
+        case 'provider':
+          this.loadProviderDashboard();
+          break;
+        case 'admin':
+          this.loadAdminDashboard();
+          break;
+      }
+    });
+  }
+
+  /**
+   * Müşteriye özel: Uzmanları çekme ve Form dinleme mantığı
+   * Uzmanlar randevu oluşturmadığı için bu mantığı bir metoda ayırdık.
+   */
+  initializeAppointmentFormLogic() {
+    // 1. Uzmanları (Providers) yükle
     this.providerService.getProviders().subscribe({
       next: (data) => this.providers.set(data),
       error: (err) => console.error('Uzmanlar yüklenemedi', err),
     });
 
-    // 3. Formdaki 'providerId' seçimini anlık dinle! (Cascading Büyüsü)
+    // 2. Formdaki 'providerId' seçimini anlık dinle
     this.appointmentForm
       .get('providerId')
       ?.valueChanges.subscribe((selectedProviderId) => {
         if (selectedProviderId) {
-          // Yeni uzman seçildi! Önce alttaki hizmet seçimini temizle
           this.appointmentForm.get('serviceId')?.reset('');
-
-          // Sadece bu uzmana ait hizmetleri getir ve services sinyaline bas
           this.serviceService
             .getServicesByProvider(selectedProviderId)
             .subscribe({
@@ -210,6 +279,45 @@ export class DashboardComponent implements OnInit {
           alert(
             err.error?.message || 'Randevu iptal edilirken bir hata oluştu.',
           );
+        },
+      });
+    }
+  }
+
+  // --- MÜŞTERİ METOTLARI ---
+  loadCustomerDashboard() {
+    // Sadece müşterinin kendi randevularını getirir (GET /api/appointments/my)
+    this.appointmentService.fetchUpcomingAppointments();
+  }
+
+  // --- UZMAN METOTLARI ---
+  loadProviderDashboard() {
+    // TODO: İleride provider'a özel uçlar yazacağız (Örn: GET /api/appointments/provider/schedule)
+    console.log('Uzman verileri yükleniyor...');
+    this.appointmentService.fetchProviderAppointments();
+  }
+
+  // --- ADMIN METOTLARI ---
+  loadAdminDashboard() {
+    console.log('Admin verileri yükleniyor...');
+  }
+
+  // Randevu Onaylama Aksiyonu
+  approveAppointment(id: string) {
+    // Kullanıcıya şık bir onay kutusu çıkaralım (Opsiyonel: Kendi modalınızı da kullanabilirsiniz)
+    const confirmApprove = confirm(
+      'Bu randevuyu onaylamak istediğinize emin misiniz?',
+    );
+
+    if (confirmApprove) {
+      this.appointmentService.approveAppointment(id).subscribe({
+        next: (res) => {
+          // Başarılı olduğunda bir toast mesajı veya log basabiliriz
+          console.log('Randevu başarıyla onaylandı:', res);
+        },
+        error: (err) => {
+          // Hata durumunda kullanıcıyı bilgilendir
+          alert(err.error?.message || 'Randevu onaylanırken bir hata oluştu.');
         },
       });
     }

@@ -1,0 +1,49 @@
+<div class="calendar-container">
+</div>
+
+<div class="modal-backdrop" *ngIf="isModalOpen()" (click)="closeModal()">
+
+    <div class="modal-card" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h3>Randevu Detayları</h3>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <div class="modal-body" *ngIf="selectedAppointment() as apt">
+            <div class="detail-row">
+                <span class="label">Müşteri:</span>
+                <span class="value customer-name">{{ apt.customer_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Hizmet:</span>
+                <span class="value">{{ apt.service_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Tarih:</span>
+                <span class="value">{{ apt.slot_time | date:'dd MMM yyyy, HH:mm' }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Tutar:</span>
+                <span class="value price">₺{{ apt.total_price }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Durum:</span>
+                <span class="status-badge" [ngClass]="apt.status">
+                    {{ apt.status === 'booked' ? 'Onaylandı' : apt.status === 'pending' ? 'Bekliyor' : 'İptal Edildi' }}
+                </span>
+            </div>
+        </div>
+
+        <div class="modal-footer" *ngIf="selectedAppointment() as apt">
+            <button *ngIf="apt.status === 'pending'" class="btn-approve" (click)="approve(apt.id)">
+                ✓ Randevuyu Onayla
+            </button>
+
+            <button *ngIf="apt.status !== 'cancelled'" class="btn-cancel" (click)="cancel(apt.id)">
+                ✕ İptal Et
+            </button>
+        </div>
+
+    </div>
+</div>

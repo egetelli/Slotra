@@ -51,6 +51,7 @@ export interface Appointment {
   service_id: string | number; // Alınan hizmet
 
   slot_time: string; // Randevu tarihi ve saati (Timestamp/ISO string)
+  end_time: string; // Randevu bitiş zamanı (Backend'de hesaplanıp gönderilebilir)
   status: 'booked' | 'pending' | 'cancelled' | 'completed'; // Seed dosyasında 'booked' kullanılmış
   total_price: number; // 300 vb.
 
@@ -58,4 +59,5 @@ export interface Appointment {
   customer_name?: string; // User tablosundan (Müşteri adı)
   provider_name?: string; // User tablosundan (Uzman adı)
   service_name?: string; // Service tablosundan (Hizmet adı)
+  duration_minutes?: number; // Service tablosundan (Hizmet süresi)
 }

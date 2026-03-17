@@ -1,0 +1,179 @@
+/* 🌟 PREMIUM MODAL TASARIMI 🌟 */
+
+/* Arka Plan (Backdrop) ve Bulanıklık Efekti */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4); /* Yarı saydam koyu lacivert */
+  backdrop-filter: blur(5px); /* Efsanevi blur efekti */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal Kartının Kendisi */
+.modal-card {
+  background: #ffffff;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* Derinlik hissi veren gölge */
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Animasyonlar */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Başlık Kısmı */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+    font-weight: 700;
+  }
+  .close-btn {
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+  }
+}
+
+/* Detay Satırları */
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+
+    .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .value {
+      color: #1e293b;
+      font-weight: 600;
+      text-align: right;
+    }
+    .customer-name {
+      font-size: 1.1rem;
+      color: #3b82f6;
+    } /* Mavi Vurgu */
+    .price {
+      color: #10b981;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+/* Renkli Durum Rozetleri */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+
+  &.booked {
+    background: #d1fae5;
+    color: #059669;
+  }
+  &.pending {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  &.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+/* Butonlar */
+.modal-footer {
+  display: flex;
+  gap: 12px;
+
+  button {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-approve {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+    &:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px -1px rgba(16, 185, 129, 0.4);
+    }
+  }
+
+  .btn-cancel {
+    background: #fee2e2;
+    color: #dc2626;
+    &:hover {
+      background: #fca5a5;
+      transform: translateY(-2px);
+    }
+  }
+}

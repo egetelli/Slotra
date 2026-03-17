@@ -55,7 +55,22 @@ export class AppointmentService {
       .subscribe();
   }
 
-  // 2. Yeni Randevu Oluştur (POST /api/appointments)
+  // 2. Uzman Randevularını Getir (GET /api/appointments/provider/schedule)
+  fetchProviderAppointments(): void {
+    this._isLoading.set(true);
+    this.http
+      .get<ApiResponse<Appointment[]>>(`${this.API_URL}/provider/schedule`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((res) => res.data),
+        tap((data) => this._appointments.set(data)),
+        finalize(() => this._isLoading.set(false)),
+      )
+      .subscribe();
+  }
+
+  // 3. Yeni Randevu Oluştur (POST /api/appointments)
   createAppointment(appointmentData: {
     providerId: string;
     serviceId: string;
@@ -69,12 +84,12 @@ export class AppointmentService {
         map((response) => response.data), // Sadece oluşturulan randevu objesini al
         tap((newAppointment) => {
           // Yeni randevuyu sinyalin en başına ekle (Arayüz anında güncellenir)
-          this._appointments.update((current) => [newAppointment, ...current]);
+          this.addNewAppointmentLocally(newAppointment);
         }),
       );
   }
 
-  // 3. Randevu İptal Et (PATCH /api/appointments/:id/cancel)
+  // 4. Randevu İptal Et (PATCH /api/appointments/:id/cancel)
   cancelAppointment(appointmentId: string): Observable<Appointment> {
     return this.http
       .patch<ApiResponse<Appointment>>(
@@ -95,5 +110,58 @@ export class AppointmentService {
           );
         }),
       );
+  }
+
+  // 5. Randevu Onayla (PATCH /api/appointments/:id/approve)
+  approveAppointment(appointmentId: string): Observable<Appointment> {
+    return this.http
+      .patch<
+        ApiResponse<Appointment>
+      >(`${this.API_URL}/${appointmentId}/approve`, {}, { withCredentials: true })
+      .pipe(
+        map((response) => response.data),
+        tap((approvedApt) => {
+          // Sinyal içindeki randevuyu bul ve durumunu 'booked' olarak güncelle
+          // Bu sayede UI'daki badge anında yeşile döner ve onay butonu kaybolur
+          this._appointments.update((current) =>
+            current.map((apt) =>
+              apt.id === appointmentId ? { ...apt, status: 'booked' } : apt,
+            ),
+          );
+        }),
+        catchError((err) => {
+          console.error('Onaylama hatası:', err);
+          throw err;
+        }),
+      );
+  }
+
+  updateAppointmentStatusLocally(appointmentId: string, status: string) {
+    this._appointments.update((currentList) =>
+      currentList.map((apt) =>
+        apt.id === appointmentId
+          ? {
+              ...apt,
+              // Burada TypeScript'e: "Korkma, bu string o 4 durumdan biridir" diyoruz.
+              status: status as
+                | 'booked'
+                | 'pending'
+                | 'cancelled'
+                | 'completed',
+            }
+          : apt,
+      ),
+    );
+  }
+
+  addNewAppointmentLocally(newAppointment: any) {
+    this._appointments.update((currentList) => {
+      // Eğer bu randevu zaten listede varsa (F5 falan atıldıysa) çiftlememek için kontrol et
+      const exists = currentList.find((apt) => apt.id === newAppointment.id);
+      if (exists) return currentList;
+
+      // Yoksa listenin en başına ekle
+      return [newAppointment, ...currentList];
+    });
   }
 }
