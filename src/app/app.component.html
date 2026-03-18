@@ -2,7 +2,19 @@
 
     @if (authService.user()) {
 
-    <!-- BACKGROUND BLOBS -->
+    <div
+        class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-100 z-[45] flex items-center px-4 justify-between">
+        <button (click)="toggleSidebar()" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+            <svg class="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+        <img src="/assets/logo.jpg" class="h-10 w-auto object-contain" alt="Slotra">
+        <div
+            class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 shadow-sm">
+            {{ userInitials() }}
+        </div>
+    </div>
 
     <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <div
@@ -13,26 +25,32 @@
         </div>
     </div>
 
+    @if (isSidebarOpen()) {
+    <div (click)="closeSidebar()"
+        class="lg:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[48] animate-fade-in"></div>
+    }
 
-    <!-- SIDEBAR -->
+    <aside [class.translate-x-0]="isSidebarOpen()" [class.-translate-x-full]="!isSidebarOpen()"
+        class="fixed lg:static inset-y-0 left-0 z-[50] w-64 flex flex-col bg-white/60 backdrop-blur-2xl border-r border-white/80 shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 lg:translate-x-0">
 
-    <aside
-        class="relative z-20 w-64 flex flex-col bg-white/60 backdrop-blur-2xl border-r border-white/80 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+        <div class="h-24 flex items-center justify-between px-6 shrink-0 border-b border-white/40 lg:border-none">
+            <img src="/assets/logo.jpg" alt="Slotra Logo" routerLink="/dashboard" (click)="closeSidebar()"
+                class="h-20 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all" />
 
-        <div class="h-24 flex items-center justify-center px-6">
-            <img src="/assets/logo.jpg" alt="Slotra Logo" routerLink="/dashboard"
-                class="h-24 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all" />
+            <button (click)="closeSidebar()"
+                class="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" />
+                </svg>
+            </button>
         </div>
 
         <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
-
             @for (item of menuItems; track item.name) {
-            <a [routerLink]="item.path" routerLinkActive="active" #rla="routerLinkActive"
+            <a [routerLink]="item.path" routerLinkActive="active" #rla="routerLinkActive" (click)="closeSidebar()"
                 [routerLinkActiveOptions]="{exact: item.path === '/dashboard'}"
                 class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden"
-                [ngClass]="rla.isActive 
-           ? 'text-white shadow-lg shadow-indigo-500/25' 
-           : 'text-slate-500 hover:text-indigo-600'">
+                [ngClass]="rla.isActive ? 'text-white shadow-lg shadow-indigo-500/25' : 'text-slate-500 hover:text-indigo-600'">
 
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 transition-opacity duration-300 z-0"
                     [ngClass]="rla.isActive ? 'opacity-100' : 'opacity-0'">
@@ -53,237 +71,133 @@
                     [ngClass]="rla.isActive ? 'text-white' : 'group-hover:text-indigo-600 text-slate-500'">
                     {{ item.name }}
                 </span>
-
             </a>
             }
-
         </nav>
 
-        <div class="p-4 mt-auto">
-            <button (click)="logout()"
+        <div class="p-4 mt-auto border-t border-slate-100/50">
+            <button (click)="logout(); closeSidebar()"
                 class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/50 hover:bg-white/80 border border-slate-200/60 rounded-2xl text-slate-600 hover:text-red-600 transition-all font-medium text-[14px]">
                 Güvenli Çıkış
             </button>
         </div>
-
     </aside>
 
-
-    <!-- MAIN -->
-
-    <main class="relative z-10 flex-1 flex flex-col h-screen overflow-hidden">
+    <main class="relative z-10 flex-1 flex flex-col h-screen overflow-hidden pt-16 lg:pt-0">
 
         <header
-            class="h-20 bg-white/40 backdrop-blur-xl border-b border-white/60 flex items-center justify-between px-8">
-
+            class="hidden lg:flex h-20 bg-white/40 backdrop-blur-xl border-b border-white/60 items-center justify-between px-8">
             <div class="relative group w-96">
                 <input type="text" placeholder="Arama..."
                     class="block w-full pl-11 pr-4 py-2.5 bg-white/60 border border-slate-200/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm" />
             </div>
 
             <div class="flex items-center gap-3 cursor-pointer group">
-
                 <div class="text-right">
-                    <p class="text-[14px] font-semibold text-slate-700 group-hover:text-indigo-600">
-                        {{ authService.user()?.full_name }}
-                    </p>
-
-                    <p class="text-[12px] text-slate-400 capitalize">
-                        {{ authService.user()?.role }}
-                    </p>
+                    <p class="text-[14px] font-semibold text-slate-700 group-hover:text-indigo-600">{{
+                        authService.user()?.full_name }}</p>
+                    <p class="text-[12px] text-slate-400 capitalize">{{ authService.user()?.role }}</p>
                 </div>
-
                 <div
                     class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-cyan-50 flex items-center justify-center border border-white shadow-sm">
-                    <span class="font-bold text-indigo-600">
-                        {{ userInitials() }}
-                    </span>
+                    <span class="font-bold text-indigo-600">{{ userInitials() }}</span>
                 </div>
-
             </div>
-
         </header>
 
-
-        <div class="flex-1 overflow-y-auto p-8">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar">
             <router-outlet></router-outlet>
         </div>
 
     </main>
 
-
-
-    <!-- APPOINTMENT DETAIL MODAL -->
-
     @if (uiService.detailModal().show) {
-
-    <div class="fixed inset-0 z-[100000] flex items-center justify-center overflow-hidden">
-
+    <div class="fixed inset-0 z-[100000] flex items-center justify-center overflow-hidden p-4">
         <div class="absolute inset-0 bg-white/10 backdrop-blur-md"
             [ngClass]="uiService.detailModal().isClosing ? 'animate-fade-out' : 'animate-fade-in'"
             (click)="uiService.closeDetail()"></div>
 
-        <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-md p-8 rounded-[2rem] shadow-2xl mx-4"
+        <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-md p-8 rounded-[2rem] shadow-2xl"
             [ngClass]="uiService.detailModal().isClosing ? 'animate-scale-down' : 'animate-scale-up'"
             (click)="$event.stopPropagation()">
 
             <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-
-                <h3 class="font-heading text-xl font-bold text-slate-900">
-                    Randevu Detayları
-                </h3>
-
+                <h3 class="font-heading text-xl font-bold text-slate-900">Randevu Detayları</h3>
                 <button
                     class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full transition-colors flex items-center justify-center active:scale-95"
-                    (click)="uiService.closeDetail()">
-                    ✕
-                </button>
-
+                    (click)="uiService.closeDetail()">✕</button>
             </div>
-
 
             @if (uiService.detailModal().data; as apt) {
-
             <div class="flex flex-col gap-4 mb-8 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
-
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-slate-500">Müşteri:</span>
-                    <span class="text-base font-bold text-indigo-600">{{ apt.customer_name }}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-slate-500">Hizmet:</span>
-                    <span class="text-base font-semibold text-slate-800">{{ apt.service_name }}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-slate-500">Tarih:</span>
-                    <span class="text-base font-semibold text-slate-800">
-                        {{ apt.slot_time | date:'dd MMM yyyy, HH:mm' }}
-                    </span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-slate-500">Tutar:</span>
-                    <span class="text-lg font-bold text-emerald-600">
-                        ₺{{ apt.total_price }}
-                    </span>
-                </div>
-
+                <div class="flex justify-between items-center"><span
+                        class="text-sm font-medium text-slate-500">Müşteri:</span><span
+                        class="text-base font-bold text-indigo-600">{{ apt.customer_name }}</span></div>
+                <div class="flex justify-between items-center"><span
+                        class="text-sm font-medium text-slate-500">Hizmet:</span><span
+                        class="text-base font-semibold text-slate-800">{{ apt.service_name }}</span></div>
+                <div class="flex justify-between items-center"><span
+                        class="text-sm font-medium text-slate-500">Tarih:</span><span
+                        class="text-base font-semibold text-slate-800">{{ apt.slot_time | date:'dd MMM yyyy, HH:mm'
+                        }}</span></div>
+                <div class="flex justify-between items-center"><span
+                        class="text-sm font-medium text-slate-500">Tutar:</span><span
+                        class="text-lg font-bold text-emerald-600">₺{{ apt.total_price }}</span></div>
             </div>
-
-
             <div class="flex gap-3">
-
-                @if (apt.status === 'pending') {
-
+                @if (apt.status === 'pending' && authService.user()?.role?.toLowerCase() !== 'customer') {
                 <button
                     class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-semibold transition-colors shadow-lg shadow-emerald-500/30 flex justify-center items-center gap-2 active:scale-95"
-                    (click)="onApproveClick(apt.id)">
-                    Onayla
-                </button>
-
+                    (click)="onApproveClick(apt.id)">Onayla</button>
                 }
-
                 <button
                     class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 py-3 rounded-xl font-semibold transition-colors flex justify-center items-center gap-2 active:scale-95"
-                    (click)="onCancelClick(apt.id)">
-                    İptal Et
-                </button>
-
+                    (click)="onCancelClick(apt.id)">İptal Et</button>
             </div>
-
             }
-
         </div>
-
     </div>
-
     }
 
-    }
-
-    @else {
-
+    } @else {
     <router-outlet></router-outlet>
-
     }
 
 </div>
 
 
-<!-- CONFIRM MODAL -->
-
 @if (uiService.confirmDialog().show) {
-
-<div class="fixed inset-0 z-[100001] flex items-center justify-center overflow-hidden">
-
+<div class="fixed inset-0 z-[100001] flex items-center justify-center overflow-hidden p-4">
     <div class="absolute inset-0 bg-white/10 backdrop-blur-md"
         [ngClass]="uiService.confirmDialog().isClosing ? 'animate-fade-out' : 'animate-fade-in'"
         (click)="uiService.closeConfirm()"></div>
-
-    <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-sm p-6 rounded-[2rem] shadow-2xl mx-4"
+    <div class="relative bg-white/90 backdrop-blur-2xl border border-white w-full max-w-sm p-6 rounded-[2rem] shadow-2xl"
         [ngClass]="uiService.confirmDialog().isClosing ? 'animate-scale-down' : 'animate-scale-up'">
-
         <div class="flex flex-col items-center text-center">
-
-            <h3 class="text-xl font-bold text-slate-900 mb-2">
-                {{ uiService.confirmDialog().title }}
-            </h3>
-
-            <p class="text-slate-500 text-sm mb-6 px-2 leading-relaxed">
-                {{ uiService.confirmDialog().message }}
-            </p>
-
+            <h3 class="text-xl font-bold text-slate-900 mb-2">{{ uiService.confirmDialog().title }}</h3>
+            <p class="text-slate-500 text-sm mb-6 px-2 leading-relaxed">{{ uiService.confirmDialog().message }}</p>
             <div class="flex gap-3 w-full">
-
                 <button (click)="uiService.closeConfirm()"
-                    class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors active:scale-95">
-                    Vazgeç
-                </button>
-
+                    class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors active:scale-95">Vazgeç</button>
                 <button (click)="uiService.confirmDialog().action()"
                     class="flex-1 py-3 px-4 text-white font-semibold rounded-xl transition-all shadow-md active:scale-95"
-                    [ngClass]="uiService.confirmDialog().type === 'danger'
-                        ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/30'
-                        : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30'">
-                    Evet, Eminim
-                </button>
-
+                    [ngClass]="uiService.confirmDialog().type === 'danger' ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/30' : 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/30'">Evet,
+                    Eminim</button>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 }
 
 
-<!-- TOAST -->
-
 @if (uiService.toast().show) {
-
-<div class="fixed bottom-6 right-6 z-[100002]"
+<div class="fixed bottom-6 right-6 z-[100002] left-6 sm:left-auto"
     [ngClass]="uiService.toast().isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'">
-
-    <div class="flex items-center gap-3 px-5 py-4 rounded-2xl shadow-xl backdrop-blur-xl border border-white/20"
-        [ngClass]="uiService.toast().type === 'success'
-            ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-            : 'bg-rose-500 text-white shadow-rose-500/20'">
-
-        <p class="font-medium text-[15px] pr-2">
-            {{ uiService.toast().message }}
-        </p>
-
+    <div class="flex items-center justify-between gap-3 px-5 py-4 rounded-2xl shadow-xl backdrop-blur-xl border border-white/20"
+        [ngClass]="uiService.toast().type === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : 'bg-rose-500 text-white shadow-rose-500/20'">
+        <p class="font-medium text-[15px] pr-2">{{ uiService.toast().message }}</p>
         <button (click)="uiService.closeToast()"
-            class="p-1 rounded-lg hover:bg-white/20 transition-colors opacity-80 hover:opacity-100">
-            ✕
-        </button>
-
+            class="p-1 rounded-lg hover:bg-white/20 transition-colors opacity-80 hover:opacity-100">✕</button>
     </div>
-
 </div>
-
 }

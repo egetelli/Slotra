@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,8 @@ export class AppComponent implements OnInit {
   authService = inject(AuthService);
   uiService = inject(UiService);
   appointmentService = inject(AppointmentService);
+
+  isSidebarOpen = signal(false);
 
   menuItems = [
     {
@@ -67,6 +69,14 @@ export class AppComponent implements OnInit {
     this.authService.logout();
   }
 
+  toggleSidebar() {
+    this.isSidebarOpen.update((v) => !v);
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen.set(false);
+  }
+
   onApproveClick(id: string) {
     this.uiService.openConfirm(
       'Randevuyu Onayla',
@@ -75,7 +85,16 @@ export class AppComponent implements OnInit {
       () => {
         this.appointmentService.approveAppointment(id).subscribe({
           next: () => {
-            this.uiService.showToast('Başarıyla onaylandı');
+            this.uiService.showToast('Başarıyla onaylandı', 'success');
+            this.uiService.closeConfirm();
+          },
+          error: (err) => {
+            // 🌟 Hata mesajını Toast ile göster
+            this.uiService.showToast(
+              err.error?.message || 'Onaylama sırasında bir hata oluştu!',
+              'error',
+            );
+            // Hata gelse bile modalı kapat ki ekran kilitli kalmasın
             this.uiService.closeConfirm();
           },
         });

@@ -33,6 +33,7 @@ export class DashboardComponent implements OnInit {
   private providerService = inject(ProviderService);
   private serviceService = inject(ServiceService);
   private socketService = inject(SocketService);
+  isLoading = signal<boolean>(true);
 
   currentUser = this.authService.user;
   userRole = computed(() => this.currentUser()?.role || 'customer');
@@ -42,12 +43,58 @@ export class DashboardComponent implements OnInit {
 
   // Modal State
   showCreateModal = signal(false);
+  isModalClosing = signal(false);
   isCreating = signal(false);
 
   appointmentForm = this.fb.group({
     providerId: ['', Validators.required],
     serviceId: ['', Validators.required],
     slotTime: ['', Validators.required],
+  });
+
+  //Provider için bekleyen randevular tablosu
+  pendingAppointments = computed(() => {
+    return this.appointmentService
+      .appointments()
+      .filter((a) => a.status === 'pending')
+      .sort(
+        (a, b) =>
+          new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
+      );
+  });
+
+  // Sınıfın içine (diğer sinyallerin yanına) ekle:
+  today = new Date();
+
+  // 📅 MÜŞTERİ: BUGÜN VE GELECEKTEKİ RANDEVULAR (Tablo ve Sağ Üst Kart İçin)
+  upcomingCustomerAppointments = computed(() => {
+    const allApts = this.appointmentService.appointments();
+    const now = new Date();
+    // Saati sıfırlayıp sadece gün bazlı karşılaştırma yapmak istersen .setHours(0,0,0,0) yapabilirsin
+    return allApts
+      .filter((a) => a.status !== 'cancelled' && new Date(a.slot_time) >= now)
+      .sort(
+        (a, b) =>
+          new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
+      );
+  });
+
+  // 🔄 MÜŞTERİ: TEKRAR AL (Zamanı geçmiş veya tamamlanmış randevular)
+  pastAppointments = computed(() => {
+    const allApts = this.appointmentService.appointments();
+    const now = new Date();
+
+    return allApts
+      .filter(
+        (a) =>
+          (a.status === 'completed' || a.status === 'booked') &&
+          new Date(a.slot_time) < now,
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.slot_time).getTime() - new Date(a.slot_time).getTime(),
+      ) // En yeniden eskiye
+      .slice(0, 5);
   });
 
   // 📊 İSTATİSTİK HESAPLAMALARI
@@ -183,21 +230,30 @@ export class DashboardComponent implements OnInit {
   }
 
   loadCustomerDashboard() {
+    this.isLoading.set(true);
     this.appointmentService.fetchUpcomingAppointments();
+    setTimeout(() => this.isLoading.set(false), 1500);
   }
   loadProviderDashboard() {
+    this.isLoading.set(true);
     this.appointmentService.fetchProviderAppointments();
+    setTimeout(() => this.isLoading.set(false), 1500);
   }
   loadAdminDashboard() {
     console.log('Admin verileri yükleniyor...');
   }
 
   openCreateModal() {
+    this.isModalClosing.set(false);
     this.showCreateModal.set(true);
   }
   closeCreateModal() {
-    this.showCreateModal.set(false);
-    this.appointmentForm.reset();
+    this.isModalClosing.set(true);
+    setTimeout(() => {
+      this.showCreateModal.set(false);
+      this.isModalClosing.set(false);
+      this.appointmentForm.reset();
+    }, 350);
   }
 
   submitNewAppointment() {
@@ -221,5 +277,55 @@ export class DashboardComponent implements OnInit {
         this.uiService.showToast(err.error?.message || 'Hata oluştu.', 'error');
       },
     });
+  }
+
+  onApproveClick(id: string) {
+    this.uiService.openConfirm(
+      'Randevuyu Onayla',
+      'Bu randevuyu onaylamak istediğinize emin misiniz?',
+      'success',
+      () => {
+        this.appointmentService.approveAppointment(id).subscribe({
+          next: () => {
+            this.uiService.showToast('Randevu başarıyla onaylandı', 'success');
+            this.uiService.closeConfirm();
+          },
+          error: (err) => {
+            this.uiService.showToast(
+              'Hata oluştu: ' + (err.error?.message || 'Bilinmeyen hata'),
+              'error',
+            );
+            this.uiService.closeConfirm();
+          },
+        });
+      },
+    );
+  }
+
+  onCancelClick(id: string) {
+    this.uiService.openConfirm(
+      'Randevuyu İptal Et',
+      'Bu randevuyu iptal etmek istediğinize emin misiniz? Bu işlem geri alınamaz.',
+      'danger',
+      () => {
+        this.appointmentService.cancelAppointment(id).subscribe({
+          next: () => {
+            this.uiService.showToast(
+              'Randevu başarıyla iptal edildi.',
+              'success',
+            );
+            this.uiService.closeConfirm(); // Başarıda kapat
+          },
+          error: (err) => {
+            // 🌟 Hata mesajını Toastr'a fırlat
+            this.uiService.showToast(
+              err.error?.message || 'Yetki hatası!',
+              'error',
+            );
+            this.uiService.closeConfirm(); // Hata gelse bile modalı kapat ki kullanıcı takılı kalmasın
+          },
+        });
+      },
+    );
   }
 }

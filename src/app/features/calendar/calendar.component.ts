@@ -27,7 +27,7 @@ import { UiService } from '../../core/services/ui.service';
 })
 export class CalendarComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   uiService = inject(UiService);
 
   // 🌟 MEVCUT MODAL (AÇILIR PENCERE) YÖNETİMİ
@@ -115,6 +115,10 @@ export class CalendarComponent implements OnInit {
 
   ngOnInit() {
     const userRole = this.authService.user()?.role;
+
+    const user = this.authService.user();
+    console.log('User object:', user);
+    console.log('User role:', user?.role);
 
     if (userRole === 'provider') {
       this.appointmentService.fetchProviderAppointments();
