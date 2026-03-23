@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   // 1. Ana Yönlendirme
@@ -44,6 +45,14 @@ export const routes: Routes = [
           import('./features/appointments/appointments.component').then(
             (m) => m.AppointmentsComponent,
           ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./features/settings/settings.component').then(
+            (m) => m.SettingsComponent,
+          ),
+        canActivate: [roleGuard],
       },
     ],
   },
