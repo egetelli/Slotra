@@ -1,12 +1,12 @@
 <div class="bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] p-6 shadow-sm">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-2">
         <div>
             <h2 class="font-heading text-xl font-bold text-slate-900">Tüm Randevularım</h2>
             <p class="text-sm text-slate-500 mt-1">Sistemdeki tüm randevu kayıtlarınızın detaylı listesi</p>
         </div>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left text-[14px]">
             <thead class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-100">
                 <tr>
@@ -42,7 +42,7 @@
                 }
                 @else if (appointmentService.error()) {
                 <tr>
-                    <td colspan="5" class="py-8 text-center text-rose-600 font-medium bg-rose-50/30">
+                    <td colspan="5" class="py-8 text-center text-rose-600 font-medium bg-rose-50/30 rounded-xl">
                         {{ appointmentService.error() }}
                     </td>
                 </tr>
@@ -72,7 +72,7 @@
                     </td>
                     <td class="py-4 px-6 text-slate-600">{{ apt.service_name || 'Standart Hizmet' }}</td>
                     <td class="py-4 px-6">
-                        <span class="px-3 py-1 rounded-full text-[13px] font-semibold"
+                        <span class="px-3 py-1 rounded-full text-[13px] font-semibold whitespace-nowrap"
                             [ngClass]="getStatusBadgeClass(apt.status)">
                             {{ getStatusText(apt.status) }}
                         </span>
@@ -106,5 +106,89 @@
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="md:hidden flex flex-col gap-4">
+        @if (appointmentService.isLoading()) {
+        @for (i of [1,2,3,4]; track i) {
+        <div class="bg-white/50 border border-slate-100 rounded-2xl p-4 animate-pulse">
+            <div class="flex justify-between items-start mb-3">
+                <div class="h-5 bg-slate-200 rounded w-32"></div>
+                <div class="h-6 bg-slate-200 rounded-full w-20"></div>
+            </div>
+            <div class="space-y-2">
+                <div class="h-4 bg-slate-200 rounded w-48"></div>
+                <div class="h-4 bg-slate-200 rounded w-36"></div>
+            </div>
+        </div>
+        }
+        }
+        @else if (appointmentService.error()) {
+        <div class="p-6 text-center text-rose-600 font-medium bg-rose-50/30 rounded-xl border border-rose-100">
+            {{ appointmentService.error() }}
+        </div>
+        }
+        @else if (appointmentService.appointments().length === 0) {
+        <div
+            class="p-8 text-center text-slate-500 italic bg-slate-50/50 rounded-xl border border-slate-100 border-dashed">
+            Henüz bir randevu kaydı bulunmuyor.
+        </div>
+        }
+        @else {
+        @for (apt of appointmentService.appointments(); track apt.id) {
+        <div
+            class="bg-white/70 hover:bg-white border border-slate-200/60 rounded-2xl p-4 shadow-sm transition-all duration-300">
+            <div class="flex justify-between items-start mb-3">
+                <h3 class="font-bold text-slate-900 text-base">
+                    {{ authService.user()?.role === 'provider' ? apt.customer_name : (apt.provider_name || 'Bilinmeyen
+                    Uzman') }}
+                </h3>
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide whitespace-nowrap shadow-sm"
+                    [ngClass]="getStatusBadgeClass(apt.status)">
+                    {{ getStatusText(apt.status) }}
+                </span>
+            </div>
+
+            <div class="space-y-1.5 mb-4">
+                <p class="text-sm font-medium text-slate-700">{{ apt.service_name || 'Standart Hizmet' }}</p>
+                <div
+                    class="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold bg-indigo-50/50 w-fit px-2 py-1 rounded-md">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {{ apt.slot_time | date:'dd MMM yyyy, HH:mm' }}
+                </div>
+            </div>
+
+            @if ((authService.user()?.role === 'provider' && apt.status === 'pending') || apt.status === 'booked' ||
+            apt.status === 'pending') {
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+
+                @if (authService.user()?.role === 'provider' && apt.status === 'pending') {
+                <button (click)="approveAppointment(apt.id)"
+                    class="flex-1 flex items-center justify-center gap-1.5 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white py-2 px-3 rounded-xl text-sm font-bold transition-all border border-emerald-100 hover:border-emerald-500 active:scale-95 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Onayla
+                </button>
+                }
+
+                @if (apt.status === 'booked' || apt.status === 'pending') {
+                <button (click)="cancelAppointment(apt.id)"
+                    class="flex-1 flex items-center justify-center gap-1.5 bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 py-2 px-3 rounded-xl text-sm font-bold transition-all border border-slate-200 hover:border-rose-200 active:scale-95 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    İptal Et
+                </button>
+                }
+            </div>
+            }
+        </div>
+        }
+        }
     </div>
 </div>

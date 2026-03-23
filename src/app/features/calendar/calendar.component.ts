@@ -79,14 +79,9 @@ export class CalendarComponent implements OnInit {
   });
 
   calendarOptions: CalendarOptions = {
+    // Mevcut ayarların (Aynen korundu)
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-    initialView: 'timeGridWeek',
     locale: trLocale,
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay',
-    },
     slotMinTime: '08:00:00',
     slotMaxTime: '21:00:00',
     allDaySlot: false,
@@ -94,7 +89,29 @@ export class CalendarComponent implements OnInit {
     selectable: true,
     nowIndicator: true,
     slotEventOverlap: false,
+    expandRows: true,
+    eventMinHeight: 36,
+    eventDisplay: 'block',
+    eventClick: this.handleEventClick.bind(this),
+    height: '70vh',
 
+    // 🌟 1. RESPONSIVE YENİLİK: Mobilde 'Gün', Masaüstünde 'Hafta' görünümü ile başlat
+    initialView:
+      typeof window !== 'undefined' && window.innerWidth < 768
+        ? 'timeGridDay'
+        : 'timeGridWeek',
+
+    // 🌟 2. RESPONSIVE YENİLİK: Mobilde (Aylık görünümü vs. kaldırarak) butonları sadeleştir
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right:
+        typeof window !== 'undefined' && window.innerWidth < 768
+          ? 'timeGridWeek,timeGridDay' // Mobilde sadece Hafta ve Gün
+          : 'dayGridMonth,timeGridWeek,timeGridDay', // Masaüstünde hepsi
+    },
+
+    // Etkinlik içeriği (Aynen korundu)
     eventContent: (arg) => {
       const apt = arg.event.extendedProps as any;
       return {
@@ -106,11 +123,32 @@ export class CalendarComponent implements OnInit {
         `,
       };
     },
-    expandRows: true,
-    eventMinHeight: 36,
-    eventDisplay: 'block',
-    eventClick: this.handleEventClick.bind(this),
-    height: '70vh',
+    eventClassNames: (arg) => {
+      const status = arg.event.extendedProps['status'];
+      if (status === 'booked') return ['apt-booked']; // Onaylananlar
+      if (status === 'pending') return ['apt-pending']; // Bekleyenler
+      if (status === 'cancelled') return ['apt-cancelled']; // İptal edilenler
+      return [];
+    },
+
+    // 🌟 3. RESPONSIVE YENİLİK: Ekran boyutu değiştiğinde (örneğin telefonu yan çevirince veya pencereyi küçültünce) takvimi anında güncelle
+    windowResize: (arg) => {
+      if (window.innerWidth < 768) {
+        arg.view.calendar.changeView('timeGridDay');
+        arg.view.calendar.setOption('headerToolbar', {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridWeek,timeGridDay',
+        });
+      } else {
+        arg.view.calendar.changeView('timeGridWeek');
+        arg.view.calendar.setOption('headerToolbar', {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+        });
+      }
+    },
   };
 
   ngOnInit() {

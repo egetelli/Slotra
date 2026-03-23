@@ -1,4 +1,4 @@
-<div class="relative flex h-screen bg-[#F8FAFC] overflow-hidden text-slate-800">
+<div class="relative flex h-screen w-full bg-[#F8FAFC] overflow-hidden text-slate-800">
 
     @if (authService.user()) {
 
@@ -160,7 +160,9 @@
     }
 
     } @else {
-    <router-outlet></router-outlet>
+    <div class="flex-1 w-full h-full">
+        <router-outlet></router-outlet>
+    </div>
     }
 
 </div>

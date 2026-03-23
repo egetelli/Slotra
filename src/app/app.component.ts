@@ -1,7 +1,13 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from './core/services/auth.service';
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router'; // Router eklendi
 import { CommonModule } from '@angular/common';
+
+import { AuthService } from './core/services/auth.service';
 import { UiService } from './core/services/ui.service';
 import { AppointmentService } from './core/services/appointment.service';
 
@@ -13,9 +19,12 @@ import { AppointmentService } from './core/services/appointment.service';
 })
 export class AppComponent implements OnInit {
   title = 'Slotra';
+
+  // Servisleri Inject ediyoruz
   authService = inject(AuthService);
   uiService = inject(UiService);
   appointmentService = inject(AppointmentService);
+  router = inject(Router); // 🌟 Router servisi inject edildi!
 
   isSidebarOpen = signal(false);
 
@@ -51,6 +60,7 @@ export class AppComponent implements OnInit {
       icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
     },
   ];
+
   userInitials = computed(() => {
     const name = this.authService.user()?.full_name || 'Admin User';
     return name
@@ -65,8 +75,21 @@ export class AppComponent implements OnInit {
     this.authService.silentRefresh().subscribe();
   }
 
+  // 🌟 Düzeltilmiş Logout Metodu
   logout() {
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => {
+        // Çıkış başarılıysa login'e at ve sidebar'ı kapat
+        this.router.navigate(['/login']);
+        this.closeSidebar();
+      },
+      error: (err) => {
+        // Hata verse bile (örn. token zaten geçersizse) kullanıcıyı içeride tutma, dışarı at.
+        console.error('Çıkış yapılırken bir hata oluştu:', err);
+        this.router.navigate(['/login']);
+        this.closeSidebar();
+      },
+    });
   }
 
   toggleSidebar() {
@@ -89,12 +112,10 @@ export class AppComponent implements OnInit {
             this.uiService.closeConfirm();
           },
           error: (err) => {
-            // 🌟 Hata mesajını Toast ile göster
             this.uiService.showToast(
               err.error?.message || 'Onaylama sırasında bir hata oluştu!',
               'error',
             );
-            // Hata gelse bile modalı kapat ki ekran kilitli kalmasın
             this.uiService.closeConfirm();
           },
         });
@@ -114,15 +135,14 @@ export class AppComponent implements OnInit {
               'Randevu başarıyla iptal edildi.',
               'success',
             );
-            this.uiService.closeConfirm(); // Başarıda kapat
+            this.uiService.closeConfirm();
           },
           error: (err) => {
-            // 🌟 Hata mesajını Toastr'a fırlat
             this.uiService.showToast(
               err.error?.message || 'Yetki hatası!',
               'error',
             );
-            this.uiService.closeConfirm(); // Hata gelse bile modalı kapat ki kullanıcı takılı kalmasın
+            this.uiService.closeConfirm();
           },
         });
       },

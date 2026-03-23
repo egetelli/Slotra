@@ -3,398 +3,513 @@
     @switch (authService.user()?.role || 'customer') {
 
     @case ('provider') {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 shrink-0">
+    <div
+        class="flex flex-col gap-6 h-auto lg:h-[calc(100vh-110px)] w-full overflow-y-auto lg:overflow-hidden pb-10 lg:pb-0 p-1 custom-scrollbar">
 
-        <div
-            class="lg:col-span-2 bg-slate-900 rounded-3xl p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden group border border-white/5 hover:border-white/20 hover:shadow-indigo-500/20 hover:-translate-y-1 transition-all duration-300">
-            <div
-                class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-[80px] group-hover:bg-indigo-500/30 transition-colors duration-700">
-            </div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[60px]"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 shrink-0">
 
             <div
-                class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 h-full">
-                <div class="flex flex-col justify-between h-full">
-                    <div>
-                        <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-slate-300 mb-6 uppercase border border-white/5">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Bugünün Özeti
-                        </span>
+                class="lg:col-span-2 bg-slate-900 rounded-3xl p-8 text-white shadow-2xl shadow-slate-900/20 relative overflow-hidden group border border-white/5 hover:border-white/20 hover:shadow-indigo-500/20 hover:-translate-y-1 transition-all duration-300">
+                <div
+                    class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-[80px] group-hover:bg-indigo-500/30 transition-colors duration-700">
+                </div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[60px]"></div>
 
-                        <div class="flex flex-col gap-2">
+                <div
+                    class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 h-full">
+                    <div class="flex flex-col justify-between h-full">
+                        <div>
+                            <span
+                                class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold tracking-widest text-slate-300 mb-6 uppercase border border-white/5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Bugünün Özeti
+                            </span>
+
+                            <div class="flex flex-col gap-2">
+                                @if (isLoading()) {
+                                <div class="bg-slate-700 animate-pulse w-48 h-12 rounded-xl mb-1"></div>
+                                <div class="bg-slate-700 animate-pulse w-32 h-6 rounded-md"></div>
+                                } @else {
+                                <div class="flex items-baseline gap-3">
+                                    <h2 class="font-heading text-5xl font-black text-white tracking-tight">
+                                        ₺{{ stats().todayRealizedEarnings | number:'1.0-0' }}
+                                    </h2>
+                                    <span
+                                        class="text-xs text-emerald-400 font-bold uppercase tracking-wider bg-emerald-400/10 px-2 py-1 rounded-md">Kazanılan</span>
+                                </div>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xl font-bold text-slate-300">
+                                        + ₺{{ stats().todayExpectedEarnings | number:'1.0-0' }}
+                                    </span>
+                                    <span
+                                        class="text-[11px] text-slate-400 font-medium uppercase tracking-widest">Beklenen</span>
+                                </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-white/10">
                             @if (isLoading()) {
-                            <div class="bg-slate-700 animate-pulse w-48 h-12 rounded-xl mb-1"></div>
-                            <div class="bg-slate-700 animate-pulse w-32 h-6 rounded-md"></div>
+                            <div class="bg-slate-700 animate-pulse w-64 h-4 rounded-md"></div>
                             } @else {
-                            <div class="flex items-baseline gap-3">
-                                <h2 class="font-heading text-5xl font-black text-white tracking-tight">
-                                    ₺{{ stats().todayRealizedEarnings | number:'1.0-0' }}
-                                </h2>
-                                <span
-                                    class="text-xs text-emerald-400 font-bold uppercase tracking-wider bg-emerald-400/10 px-2 py-1 rounded-md">Kazanılan</span>
-                            </div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xl font-bold text-slate-300">
-                                    + ₺{{ stats().todayExpectedEarnings | number:'1.0-0' }}
-                                </span>
-                                <span
-                                    class="text-[11px] text-slate-400 font-medium uppercase tracking-widest">Beklenen</span>
-                            </div>
+                            <p class="text-slate-300 text-sm font-medium flex items-center gap-2">
+                                Bugün <span class="text-white font-black bg-white/10 px-2 py-0.5 rounded-md">{{
+                                    stats().totalToday }}</span> randevudan
+                                <span class="text-emerald-400 font-black bg-emerald-400/10 px-2 py-0.5 rounded-md">{{
+                                    stats().completedToday }}</span> tanesi tamamlandı.
+                            </p>
                             }
                         </div>
                     </div>
 
-                    <div class="mt-8 pt-6 border-t border-white/10">
-                        @if (isLoading()) {
-                        <div class="bg-slate-700 animate-pulse w-64 h-4 rounded-md"></div>
-                        } @else {
-                        <p class="text-slate-300 text-sm font-medium flex items-center gap-2">
-                            Bugün <span class="text-white font-black bg-white/10 px-2 py-0.5 rounded-md">{{
-                                stats().totalToday }}</span> randevudan
-                            <span class="text-emerald-400 font-black bg-emerald-400/10 px-2 py-0.5 rounded-md">{{
-                                stats().completedToday }}</span> tanesi tamamlandı.
-                        </p>
-                        }
-                    </div>
-                </div>
-
-                @if (isLoading()) {
-                <div
-                    class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 w-full lg:w-80 border border-white/10 shadow-xl">
-                    <div class="flex justify-between mb-4">
-                        <div class="bg-slate-700 animate-pulse w-24 h-3 rounded"></div>
-                        <div class="bg-slate-700 animate-pulse w-12 h-4 rounded"></div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-2xl bg-slate-700 animate-pulse shrink-0"></div>
-                        <div class="flex-1 space-y-2">
-                            <div class="bg-slate-700 animate-pulse w-3/4 h-4 rounded"></div>
-                            <div class="bg-slate-700 animate-pulse w-1/2 h-3 rounded"></div>
-                        </div>
-                    </div>
-                </div>
-                } @if (stats().nextCustomer; as next) {
-                <div
-                    class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 w-full lg:w-80 border border-white/10 shadow-xl transition-all hover:bg-white/10 group/card">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sıradaki Müşteri</p>
-                        <span class="text-xs font-bold text-indigo-300 bg-indigo-500/20 px-2 py-1 rounded-md">{{
-                            next?.slot_time | date:'HH:mm' }}</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/20 group-hover/card:scale-105 transition-transform">
-                            {{ next?.customer_name?.charAt(0)?.toUpperCase() || '?' }}
-                        </div>
-                        <div class="overflow-hidden flex-1">
-                            <p class="font-bold text-base text-white truncate mb-1">{{ next?.customer_name }}</p>
-                            <p class="text-[13px] text-slate-400 font-medium truncate">{{ next?.service_name }}</p>
-                        </div>
-                    </div>
-                </div>
-                } @else {
-                <div
-                    class="bg-white/5 border border-dashed border-white/20 rounded-2xl p-6 w-full lg:w-80 flex flex-col items-center justify-center text-center">
-                    <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    <p class="text-slate-400 text-sm font-medium">Bugün için başka<br>randevu görünmüyor.</p>
-                </div>
-                }
-            </div>
-        </div>
-
-        <div
-            class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center">
-            <h2 class="font-heading text-lg font-bold text-slate-900 mb-5">Hızlı Yönetim</h2>
-            <div class="space-y-3">
-                <button
-                    class="w-full flex items-center gap-4 p-4 bg-white/50 hover:bg-white rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 hover:shadow-sm group active:scale-[0.98]">
+                    @if (isLoading()) {
                     <div
-                        class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm group-hover:shadow-indigo-500/25">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                        class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 w-full lg:w-80 border border-white/10 shadow-xl">
+                        <div class="flex justify-between mb-4">
+                            <div class="bg-slate-700 animate-pulse w-24 h-3 rounded"></div>
+                            <div class="bg-slate-700 animate-pulse w-12 h-4 rounded"></div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-slate-700 animate-pulse shrink-0"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="bg-slate-700 animate-pulse w-3/4 h-4 rounded"></div>
+                                <div class="bg-slate-700 animate-pulse w-1/2 h-3 rounded"></div>
+                            </div>
+                        </div>
                     </div>
-                    <span class="font-semibold text-slate-700 text-[15px] group-hover:text-indigo-900">Takvim &
-                        Müsaitlik</span>
-                </button>
-                <button
-                    class="w-full flex items-center gap-4 p-4 bg-white/50 hover:bg-white rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 hover:shadow-sm group active:scale-[0.98]">
+                    } @if (stats().nextCustomer; as next) {
                     <div
-                        class="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white transition-colors duration-300 shadow-sm group-hover:shadow-cyan-500/25">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                        class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 w-full lg:w-80 border border-white/10 shadow-xl transition-all hover:bg-white/10 group/card">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sıradaki Müşteri
+                            </p>
+                            <span class="text-xs font-bold text-indigo-300 bg-indigo-500/20 px-2 py-1 rounded-md">{{
+                                next?.slot_time | date:'HH:mm' }}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-indigo-500/20 group-hover/card:scale-105 transition-transform">
+                                {{ next?.customer_name?.charAt(0)?.toUpperCase() || '?' }}
+                            </div>
+                            <div class="overflow-hidden flex-1">
+                                <p class="font-bold text-base text-white truncate mb-1">{{ next?.customer_name }}</p>
+                                <p class="text-[13px] text-slate-400 font-medium truncate">{{ next?.service_name }}</p>
+                            </div>
+                        </div>
                     </div>
-                    <span class="font-semibold text-slate-700 text-[15px] group-hover:text-cyan-900">Çalışma
-                        Saatleri</span>
-                </button>
+                    } @else {
+                    <div
+                        class="bg-white/5 border border-dashed border-white/20 rounded-2xl p-6 w-full lg:w-80 flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <p class="text-slate-400 text-sm font-medium">Bugün için başka<br>randevu görünmüyor.</p>
+                    </div>
+                    }
+                </div>
             </div>
-        </div>
-    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
-
-        <div class="lg:col-span-1 flex flex-col gap-6 h-full min-h-0">
             <div
-                class="shrink-0 bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm hover:shadow-xl hover:border-emerald-200/60 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-                <svg class="absolute -right-4 -bottom-4 w-32 h-32 text-emerald-50 opacity-50 group-hover:scale-110 transition-transform duration-500"
-                    fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-4">
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center">
+                <h2 class="font-heading text-lg font-bold text-slate-900 mb-5">Hızlı Yönetim</h2>
+                <div class="space-y-3">
+                    <button
+                        class="w-full flex items-center gap-4 p-4 bg-white/50 hover:bg-white rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 hover:shadow-sm group active:scale-[0.98]">
                         <div
-                            class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-sm">
+                            class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm group-hover:shadow-indigo-500/25">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <span
-                            class="text-[12px] font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full tracking-wide">Bu
-                            Ay</span>
-                    </div>
-                    <div>
-                        @if (isLoading()) {
-                        <div class="bg-slate-200 animate-pulse w-16 h-10 rounded-xl mb-1 mt-1"></div>
-                        } @else {
-                        <h4 class="font-heading text-4xl font-black text-slate-900 tracking-tight">{{
-                            stats().monthlyCount }}</h4>
-                        }
-                        <p class="text-slate-500 text-sm font-medium mt-1">Tamamlanan Randevu</p>
-                    </div>
-                </div>
-            </div>
-
-            <div
-                class="flex-1 min-h-0 bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col">
-                <div class="flex items-center gap-3 mb-6 shrink-0">
-                    <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-slate-900 text-[16px] font-bold">Haftalık Doluluk</h3>
-                </div>
-                <div class="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-                    @if (isLoading()) {
-                    @for (i of [1, 2, 3, 4, 5]; track i) {
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <div class="bg-slate-200 animate-pulse w-20 h-4 rounded"></div>
-                            <div class="bg-slate-200 animate-pulse w-8 h-4 rounded"></div>
-                        </div>
-                        <div class="bg-slate-200 animate-pulse w-full h-2.5 rounded-full"></div>
-                    </div>
-                    }
-                    } @else {
-                    @for (item of occupancyRates(); track item.day) {
-                    <div class="group">
-                        <div class="flex justify-between text-[13px] mb-2">
-                            <span class="font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">{{
-                                item.day }}</span>
-                            <span class="text-slate-500 font-bold">%{{ item.percentage | number:'1.0-0' }}</span>
-                        </div>
-                        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner relative">
-                            <div class="h-full rounded-full transition-all duration-1000 ease-out"
-                                [ngStyle]="{'width': item.percentage + '%'}" [class.bg-gradient-to-r]="true"
-                                [class.from-indigo-400]="item.percentage < 70"
-                                [class.to-indigo-500]="item.percentage < 70"
-                                [class.from-cyan-400]="item.percentage >= 70 && item.percentage < 100"
-                                [class.to-cyan-500]="item.percentage >= 70 && item.percentage < 100"
-                                [class.from-rose-400]="item.percentage >= 100"
-                                [class.to-rose-500]="item.percentage >= 100">
-                            </div>
-                        </div>
-                    </div>
-                    }
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div
-            class="lg:col-span-2 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full min-h-0 overflow-hidden">
-            <div class="px-8 py-6 border-b border-slate-100/50 bg-white/40 flex justify-between items-center shrink-0">
-                <div>
-                    <h2 class="font-heading text-xl font-bold text-slate-900">Bekleyen Onaylar</h2>
-                    <p class="text-sm text-slate-500 mt-1">İşlem bekleyen müşteri talepleri</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    @if (!isLoading() && stats().pendingCount > 0) {
-                    <span
-                        class="flex items-center gap-2 bg-rose-50 border border-rose-100 text-rose-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                        {{ stats().pendingCount }} Bekleyen
-                    </span>
-                    }
-                    <button routerLink="/appointments"
-                        class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors bg-white hover:bg-indigo-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm active:scale-95">
-                        Tümünü Gör
+                        <span class="font-semibold text-slate-700 text-[15px] group-hover:text-indigo-900">Takvim &
+                            Müsaitlik</span>
                     </button>
-                </div>
-            </div>
-
-            <div class="flex-1 min-h-0 overflow-y-auto bg-white/20 custom-scrollbar p-2">
-                @if (isLoading()) {
-                <div class="flex flex-col gap-2 p-4">
-                    @for (i of [1, 2, 3]; track i) {
-                    <div class="flex items-center justify-between p-4 bg-white/50 rounded-2xl border border-slate-100">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-slate-200 animate-pulse w-12 h-12 rounded-xl"></div>
-                            <div class="space-y-2">
-                                <div class="bg-slate-200 animate-pulse w-32 h-4 rounded"></div>
-                                <div class="bg-slate-200 animate-pulse w-24 h-3 rounded"></div>
-                            </div>
-                        </div>
-                        <div class="bg-slate-200 animate-pulse w-20 h-8 rounded-lg"></div>
-                    </div>
-                    }
-                </div>
-                } @else if (pendingAppointments().length > 0) {
-                <div class="flex flex-col gap-2 p-4">
-                    @for (apt of pendingAppointments(); track apt.id) {
-                    <div
-                        class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/80 hover:bg-slate-100 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-300 group gap-4 hover:-translate-y-0.5">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 flex items-center justify-center text-indigo-600 font-bold shadow-inner border border-indigo-100">
-                                {{ apt.customer_name?.charAt(0)?.toUpperCase() || '?' }}
-                            </div>
-                            <div>
-                                <p class="font-bold text-slate-800 text-[15px] mb-0.5">{{ apt.customer_name }}</p>
-                                <p class="text-xs font-medium text-slate-500">{{ apt.service_name }}</p>
-                            </div>
-                        </div>
-
+                    <button
+                        class="w-full flex items-center gap-4 p-4 bg-white/50 hover:bg-white rounded-2xl transition-all duration-300 border border-transparent hover:border-slate-100 hover:shadow-sm group active:scale-[0.98]">
                         <div
-                            class="flex items-center gap-6 sm:gap-8 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
-                            <div class="text-right hidden sm:block">
-                                <p class="text-[13px] font-bold text-slate-700">{{ apt.slot_time | date:'dd MMM yyyy' }}
-                                </p>
-                                <p class="text-xs text-indigo-600 font-bold">{{ apt.slot_time | date:'HH:mm' }}</p>
-                            </div>
-
-                            <div class="text-right">
-                                <p class="text-sm font-black text-slate-800">₺{{ apt.total_price }}</p>
-                            </div>
-
-                            <button (click)="onApproveClick(apt.id)"
-                                class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border border-emerald-100 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                Onayla
-                            </button>
-                        </div>
-                    </div>
-                    }
-                </div>
-                } @else {
-                <div
-                    class="flex flex-col items-center justify-center h-full p-8 text-center bg-gradient-to-b from-transparent to-slate-50/50">
-                    <div
-                        class="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-3xl flex items-center justify-center mb-5 rotate-3 hover:rotate-0 transition-transform duration-300 shrink-0">
-                        <svg class="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-800 mb-1">Şu an her şey kontrol altında</h3>
-                    <p class="text-slate-500 text-sm max-w-sm">Tüm randevularınızı ve detaylı listeyi yönetmek için
-                        <b>Tümünü Gör</b> butonuna tıklayabilirsiniz.
-                    </p>
-                </div>
-                }
-            </div>
-        </div>
-    </div>
-    }
-    @case ('customer') {
-    <div
-        class="grid grid-cols-1 xl:grid-cols-3 gap-6 h-auto xl:h-[calc(100vh-110px)] w-full overflow-y-auto xl:overflow-hidden p-1 custom-scrollbar">
-
-        <div class="xl:col-span-2 flex flex-col gap-6 h-auto xl:min-h-0">
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 shrink-0">
-                <div
-                    class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex flex-col gap-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            class="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-500 group-hover:text-white transition-colors duration-300 shadow-sm group-hover:shadow-cyan-500/25">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
+                        <span class="font-semibold text-slate-700 text-[15px] group-hover:text-cyan-900">Çalışma
+                            Saatleri</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:flex-1 lg:min-h-0">
+
+            <div class="lg:col-span-1 flex flex-col gap-6 h-auto lg:h-full lg:min-h-0">
+                <div
+                    class="shrink-0 bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm hover:shadow-xl hover:border-emerald-200/60 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+                    <svg class="absolute -right-4 -bottom-4 w-32 h-32 text-emerald-50 opacity-50 group-hover:scale-110 transition-transform duration-500"
+                        fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-sm">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <span
+                                class="text-[12px] font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full tracking-wide">Bu
+                                Ay</span>
+                        </div>
                         <div>
-                            <p class="text-slate-500 text-sm font-medium mb-1">Bekleyen Randevu</p>
                             @if (isLoading()) {
-                            <div class="bg-slate-200 animate-pulse w-16 h-8 rounded-lg mt-1"></div>
+                            <div class="bg-slate-200 animate-pulse w-16 h-10 rounded-xl mb-1 mt-1"></div>
                             } @else {
-                            <h4 class="font-heading text-3xl font-black text-slate-900">{{
-                                appointmentService.appointments().length }}</h4>
+                            <h4 class="font-heading text-4xl font-black text-slate-900 tracking-tight">{{
+                                stats().monthlyCount }}</h4>
                             }
+                            <p class="text-slate-500 text-sm font-medium mt-1">Tamamlanan Randevu</p>
                         </div>
                     </div>
                 </div>
 
                 <div
-                    class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-emerald-200/60 hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex flex-col gap-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    class="h-auto lg:flex-1 lg:min-h-0 min-h-[250px] bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                    <div class="flex items-center gap-3 mb-6 shrink-0">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                         </div>
-                        <div>
-                            <p class="text-slate-500 text-sm font-medium mb-1">Toplam Ziyaret</p>
-                            @if (isLoading()) {
-                            <div class="bg-slate-200 animate-pulse w-12 h-8 rounded-lg mt-1"></div>
-                            } @else {
-                            <h4 class="font-heading text-3xl font-black text-slate-900">12</h4>
-                            }
-                        </div>
+                        <h3 class="text-slate-900 text-[16px] font-bold">Haftalık Doluluk</h3>
                     </div>
-                </div>
-
-                <div
-                    class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-rose-200/60 hover:-translate-y-1 transition-all duration-300">
-                    <div class="flex flex-col gap-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 shadow-sm">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </div>
+                    <div class="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
+                        @if (isLoading()) {
+                        @for (i of [1, 2, 3, 4, 5]; track i) {
                         <div>
-                            <p class="text-slate-500 text-sm font-medium mb-1">Favori Uzman</p>
-                            @if (isLoading()) {
-                            <div class="bg-slate-200 animate-pulse w-24 h-6 rounded-lg mt-2"></div>
-                            } @else {
-                            <h4 class="font-heading text-xl font-bold text-slate-900 mt-2">Ali Vefa</h4>
-                            }
+                            <div class="flex justify-between mb-2">
+                                <div class="bg-slate-200 animate-pulse w-20 h-4 rounded"></div>
+                                <div class="bg-slate-200 animate-pulse w-8 h-4 rounded"></div>
+                            </div>
+                            <div class="bg-slate-200 animate-pulse w-full h-2.5 rounded-full"></div>
                         </div>
+                        }
+                        } @else {
+                        @for (item of occupancyRates(); track item.day) {
+                        <div class="group">
+                            <div class="flex justify-between text-[13px] mb-2">
+                                <span
+                                    class="font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">{{
+                                    item.day }}</span>
+                                <span class="text-slate-500 font-bold">%{{ item.percentage | number:'1.0-0' }}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner relative">
+                                <div class="h-full rounded-full transition-all duration-1000 ease-out"
+                                    [ngStyle]="{'width': item.percentage + '%'}" [class.bg-gradient-to-r]="true"
+                                    [class.from-indigo-400]="item.percentage < 70"
+                                    [class.to-indigo-500]="item.percentage < 70"
+                                    [class.from-cyan-400]="item.percentage >= 70 && item.percentage < 100"
+                                    [class.to-cyan-500]="item.percentage >= 70 && item.percentage < 100"
+                                    [class.from-rose-400]="item.percentage >= 100"
+                                    [class.to-rose-500]="item.percentage >= 100">
+                                </div>
+                            </div>
+                        </div>
+                        }
+                        }
                     </div>
                 </div>
             </div>
 
             <div
-                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl shadow-sm hover:shadow-xl hover:border-indigo-200/60 transition-all duration-300 flex flex-col h-auto xl:flex-1 xl:min-h-0 overflow-hidden">
+                class="lg:col-span-2 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl shadow-sm hover:shadow-xl hover:border-indigo-200/60 hover:-translate-y-1 transition-all duration-300 flex flex-col h-auto lg:h-full lg:min-h-0 overflow-hidden">
+                <div
+                    class="px-8 py-6 border-b border-slate-100/50 bg-white/40 flex justify-between items-center shrink-0">
+                    <div>
+                        <h2 class="font-heading text-xl font-bold text-slate-900">Bekleyen Onaylar</h2>
+                        <p class="text-sm text-slate-500 mt-1">İşlem bekleyen müşteri talepleri</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        @if (!isLoading() && stats().pendingCount > 0) {
+                        <span
+                            class="hidden sm:flex items-center gap-2 bg-rose-50 border border-rose-100 text-rose-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            {{ stats().pendingCount }} Bekleyen
+                        </span>
+                        }
+                        <button routerLink="/appointments"
+                            class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition-colors bg-white hover:bg-indigo-50 px-4 py-2 rounded-xl border border-slate-200 shadow-sm active:scale-95">
+                            Tümünü Gör
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    class="h-auto max-h-[400px] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto bg-white/20 custom-scrollbar p-2">
+                    @if (isLoading()) {
+                    <div class="flex flex-col gap-2 p-4">
+                        @for (i of [1, 2, 3]; track i) {
+                        <div
+                            class="flex items-center justify-between p-4 bg-white/50 rounded-2xl border border-slate-100">
+                            <div class="flex items-center gap-4">
+                                <div class="bg-slate-200 animate-pulse w-12 h-12 rounded-xl"></div>
+                                <div class="space-y-2">
+                                    <div class="bg-slate-200 animate-pulse w-32 h-4 rounded"></div>
+                                    <div class="bg-slate-200 animate-pulse w-24 h-3 rounded"></div>
+                                </div>
+                            </div>
+                            <div class="bg-slate-200 animate-pulse w-20 h-8 rounded-lg hidden sm:block"></div>
+                        </div>
+                        }
+                    </div>
+                    } @else if (pendingAppointments().length > 0) {
+                    <div class="flex flex-col gap-2 p-4">
+                        @for (apt of pendingAppointments(); track apt.id) {
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/80 hover:bg-slate-100 rounded-2xl border border-slate-200/60 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-300 group gap-4 hover:-translate-y-0.5">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100/50 flex items-center justify-center text-indigo-600 font-bold shadow-inner border border-indigo-100">
+                                    {{ apt.customer_name?.charAt(0)?.toUpperCase() || '?' }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800 text-[15px] mb-0.5">{{ apt.customer_name }}</p>
+                                    <p class="text-xs font-medium text-slate-500">{{ apt.service_name }}</p>
+                                </div>
+                            </div>
+
+                            <div
+                                class="flex items-center justify-between sm:justify-end gap-6 sm:gap-8 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                                <div class="text-left sm:text-right">
+                                    <p class="text-[13px] font-bold text-slate-700">{{ apt.slot_time | date:'dd MMM
+                                        yyyy' }}</p>
+                                    <p class="text-xs text-indigo-600 font-bold">{{ apt.slot_time | date:'HH:mm' }}</p>
+                                </div>
+
+                                <div class="text-right">
+                                    <p class="text-sm font-black text-slate-800">₺{{ apt.total_price }}</p>
+                                </div>
+
+                                <button (click)="onApproveClick(apt.id)"
+                                    class="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border border-emerald-100 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/20 active:scale-95">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Onayla
+                                </button>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                    } @else {
+                    <div
+                        class="flex flex-col items-center justify-center h-full p-8 text-center bg-gradient-to-b from-transparent to-slate-50/50">
+                        <div
+                            class="w-20 h-20 bg-white shadow-sm border border-slate-100 rounded-3xl flex items-center justify-center mb-5 rotate-3 hover:rotate-0 transition-transform duration-300 shrink-0">
+                            <svg class="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1">Şu an her şey kontrol altında</h3>
+                        <p class="text-slate-500 text-sm max-w-sm">Tüm randevularınızı ve detaylı listeyi yönetmek için
+                            <b>Tümünü Gör</b> butonuna tıklayabilirsiniz.
+                        </p>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+    }
+    @case ('customer') {
+    <div
+        class="grid grid-cols-1 xl:grid-cols-3 xl:grid-rows-[auto_1fr] gap-6 h-auto xl:h-[calc(100vh-110px)] w-full overflow-y-auto xl:overflow-hidden p-1 custom-scrollbar">
+
+        <div class="order-1 xl:order-none xl:col-start-3 xl:row-start-1 flex flex-col gap-6 shrink-0">
+
+            <div class="shrink-0 w-full relative overflow-hidden rounded-3xl transition-all duration-300">
+
+                @if (isLoading()) {
+                <div
+                    class="bg-gradient-to-br from-slate-200 to-slate-100 p-8 shadow-sm h-[320px] w-full animate-pulse border border-slate-200/60">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-32 h-6 bg-slate-300/60 rounded-lg"></div>
+                        <div class="w-10 h-10 bg-slate-300/60 rounded-xl"></div>
+                    </div>
+                    <div class="space-y-3 mb-8 mt-2">
+                        <div class="w-3/4 h-10 bg-slate-300/60 rounded-xl"></div>
+                        <div class="w-1/2 h-6 bg-slate-300/60 rounded-lg"></div>
+                    </div>
+                    <div class="space-y-2 mb-8">
+                        <div class="w-2/3 h-5 bg-slate-300/60 rounded-md"></div>
+                        <div class="w-1/3 h-4 bg-slate-300/60 rounded-md"></div>
+                    </div>
+                    <div class="w-full h-12 bg-slate-300/60 rounded-xl mt-auto"></div>
+                </div>
+
+                } @else {
+
+                @if (stats().nextCustomer; as next) {
+                <div
+                    class="bg-gradient-to-br from-indigo-600 via-indigo-500 to-cyan-500 p-8 text-white shadow-lg hover:shadow-2xl transition-all duration-300 group h-full w-full relative">
+                    <div
+                        class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700">
+                    </div>
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-6">
+                            <span
+                                class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase border border-white/10">Sıradaki
+                                Randevu</span>
+                            <div
+                                class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/10 shadow-sm">
+                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="font-heading text-4xl font-black mb-2 tracking-tight">
+                            {{ (next.slot_time | date:'dd MMM') === (today | date:'dd MMM') ? 'Bugün' : 'Yarın' }}
+                            <span class="text-cyan-200">{{ next.slot_time | date:'HH:mm' }}</span>
+                        </h3>
+                        <div class="space-y-1 mb-8">
+                            <p class="text-white text-lg font-bold flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-300"></span> {{ next.provider_name || 'Uzman'
+                                }}
+                            </p>
+                            <p class="text-indigo-100 text-sm ml-4 opacity-90">{{ next.service_name }}</p>
+                        </div>
+                        <button
+                            class="w-full py-3.5 bg-white text-indigo-600 hover:bg-slate-50 rounded-xl font-bold text-[15px] transition-colors shadow-lg active:scale-[0.98]">Yol
+                            Tarifi Al</button>
+                    </div>
+                </div>
+
+                } @else {
+                <div
+                    class="bg-white/60 backdrop-blur-xl border border-slate-200/60 p-8 shadow-sm transition-all duration-300 flex flex-col items-center justify-center h-[320px] w-full text-center">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-4 text-slate-400 shrink-0">
+                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-800 mb-2">Her Şey Sakin</h3>
+                    <p class="text-slate-500 text-sm font-medium px-4">Yakın zamanda planlanmış bir randevunuz
+                        bulunmuyor.</p>
+                </div>
+                }
+
+                }
+            </div>
+
+            <button (click)="openCreateModal()"
+                class="shrink-0 w-full group flex items-center justify-between p-6 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-indigo-600 hover:to-indigo-500 rounded-3xl shadow-lg hover:shadow-xl hover:shadow-indigo-500/20 transition-all duration-300 active:scale-[0.98] focus:outline-none">
+                <div class="flex items-center gap-5">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:bg-white/20 transition-colors duration-300 shadow-inner">
+                        <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="block font-bold text-xl text-white">Randevu Oluştur</span>
+                        <span
+                            class="block text-sm text-slate-400 group-hover:text-indigo-100 transition-colors duration-300 mt-0.5">Hemen
+                            yeni bir kayıt açın</span>
+                    </div>
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-white/20 group-hover:translate-x-2 transition-all duration-300">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </button>
+        </div>
+
+        <div
+            class="order-2 xl:order-none xl:col-span-2 xl:col-start-1 xl:row-start-1 xl:row-span-2 flex flex-col gap-6 h-auto xl:h-full xl:min-h-0">
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 shrink-0">
+
+                <div
+                    class="bg-white/90 backdrop-blur-2xl border border-slate-100 rounded-[1.25rem] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3.5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-indigo-50/80 flex items-center justify-center text-indigo-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-0.5">Bekleyen
+                            Randevular</p>
+                        @if (isLoading()) {
+                        <div class="bg-slate-200 animate-pulse w-10 h-6 rounded-md"></div>
+                        } @else {
+                        <h4 class="font-heading text-2xl font-black text-slate-900 leading-none">{{
+                            pendingAppointmentCount() }}</h4>
+                        }
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white/90 backdrop-blur-2xl border border-slate-100 rounded-[1.25rem] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3.5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-emerald-50/80 flex items-center justify-center text-emerald-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-0.5">Toplam Ziyaret
+                        </p>
+                        @if (isLoading()) {
+                        <div class="bg-slate-200 animate-pulse w-10 h-6 rounded-md"></div>
+                        } @else {
+                        <h4 class="font-heading text-2xl font-black text-slate-900 leading-none">{{ totalVisitsCount()
+                            }}</h4>
+                        }
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white/90 backdrop-blur-2xl border border-slate-100 rounded-[1.25rem] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3.5">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-rose-50/80 flex items-center justify-center text-rose-600 shrink-0">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col justify-center overflow-hidden">
+                        <p class="text-slate-400 text-[11px] font-bold uppercase tracking-wider mb-0.5">Favori Uzman</p>
+                        @if (isLoading()) {
+                        <div class="bg-slate-200 animate-pulse w-20 h-6 rounded-md"></div>
+                        } @else {
+                        <h4 class="font-heading text-lg font-black text-slate-900 leading-tight truncate">{{
+                            favoriteProvider() }}</h4>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <div
+                class="flex flex-col flex-1 min-h-0 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl shadow-sm hover:shadow-xl hover:border-indigo-200/60 transition-all duration-300 overflow-hidden">
                 <div
                     class="px-8 py-6 border-b border-slate-100/50 bg-white/40 flex justify-between items-center shrink-0">
                     <h2 class="font-heading text-xl font-bold text-slate-900">Randevularım</h2>
@@ -403,7 +518,7 @@
                         Gör</button>
                 </div>
 
-                <div class="h-auto xl:flex-1 overflow-y-auto bg-white/20 custom-scrollbar p-2">
+                <div class="flex-1 overflow-y-auto bg-white/20 custom-scrollbar p-2">
                     @if (isLoading()) {
                     <div class="flex flex-col gap-2 p-4">
                         @for (i of [1, 2, 3]; track i) {
@@ -482,115 +597,42 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-6 h-auto xl:min-h-0">
-
-            <div class="shrink-0">
-                @if (isLoading()) {
-                <div class="bg-indigo-600 rounded-3xl p-8 text-white shadow-lg animate-pulse h-48"></div>
-                } @if (stats().nextCustomer; as next) {
+        <div
+            class="order-3 xl:order-none xl:col-start-3 xl:row-start-2 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm flex flex-col h-auto xl:h-full xl:min-h-0">
+            <h2 class="font-heading text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Tekrar Al
+            </h2>
+            <div class="flex-1 overflow-y-auto space-y-3 custom-scrollbar min-h-[150px]">
+                @if (pastAppointments().length > 0) {
+                @for (past of pastAppointments(); track past.id) {
                 <div
-                    class="bg-gradient-to-br from-indigo-600 via-indigo-500 to-cyan-500 rounded-3xl p-8 text-white shadow-lg hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
-                    <div
-                        class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700">
-                    </div>
-                    <div class="relative z-10">
-                        <div class="flex justify-between items-start mb-6">
-                            <span
-                                class="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg text-xs font-bold tracking-widest uppercase border border-white/10">Sıradaki
-                                Randevu</span>
-                            <div
-                                class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/10">
-                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                        <h3 class="font-heading text-4xl font-black mb-2 tracking-tight">
-                            {{ (next.slot_time | date:'dd MMM') === (today | date:'dd MMM') ? 'Bugün' : 'Yarın' }}
-                            <span class="text-cyan-200">{{ next.slot_time | date:'HH:mm' }}</span>
-                        </h3>
-                        <div class="space-y-1 mb-8">
-                            <p class="text-white text-lg font-bold flex items-center gap-2"><span
-                                    class="w-2 h-2 rounded-full bg-cyan-300"></span> {{ next.provider_name || 'Uzman' }}
-                            </p>
-                            <p class="text-indigo-100 text-sm ml-4 opacity-90">{{ next.service_name }}</p>
-                        </div>
-                        <button
-                            class="w-full py-3.5 bg-white text-indigo-600 hover:bg-slate-50 rounded-xl font-bold text-[15px] transition-colors shadow-lg active:scale-[0.98]">Yol
-                            Tarifi Al</button>
-                    </div>
-                </div>
-                } @else {
-                <div
-                    class="bg-white/40 border border-dashed border-slate-300 rounded-3xl p-8 text-center text-slate-500 font-medium">
-                    Yakın zamanda randevunuz yok.</div>
-                }
-            </div>
-
-            <div
-                class="shrink-0 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all">
-                <button (click)="openCreateModal()"
-                    class="w-full flex items-center justify-between p-5 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-indigo-600 hover:to-indigo-500 text-white rounded-2xl shadow-lg transition-all duration-300 group">
+                    class="flex items-center justify-between p-3.5 bg-slate-50/50 hover:bg-slate-100 rounded-2xl transition-colors border border-slate-100/50 group cursor-pointer">
                     <div class="flex items-center gap-4">
                         <div
-                            class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center border border-white/10 group-hover:bg-white/20">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg>
-                        </div>
-                        <div class="text-left">
-                            <span class="block font-bold text-lg">Randevu Oluştur</span>
-                            <span class="block text-xs text-slate-400 group-hover:text-indigo-200">Hemen yeni bir kayıt
-                                açın</span>
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-sm shadow-inner">
+                            {{ past.provider_name?.charAt(0) || 'U' }}</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">{{ past.provider_name }}</p>
+                            <p class="text-xs text-slate-500 font-medium">{{ past.service_name }}</p>
                         </div>
                     </div>
-                    <div
-                        class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </button>
-            </div>
-
-            <div
-                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all flex flex-col h-auto xl:flex-1 xl:min-h-0">
-                <h2 class="font-heading text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 shrink-0">
-                    <svg class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg> Tekrar Al
-                </h2>
-                <div class="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar min-h-[150px]">
-                    @if (pastAppointments().length > 0) {
-                    @for (past of pastAppointments(); track past.id) {
-                    <div
-                        class="flex items-center justify-between p-3.5 bg-slate-50/50 hover:bg-slate-100 rounded-2xl transition-colors border border-slate-100/50 group cursor-pointer">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-sm shadow-inner">
-                                {{ past.provider_name?.charAt(0) || 'U' }}</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">{{ past.provider_name }}</p>
-                                <p class="text-xs text-slate-500 font-medium">{{ past.service_name }}</p>
-                            </div>
-                        </div>
-                        <button (click)="openCreateModal()"
-                            class="text-indigo-600 bg-white hover:bg-indigo-600 hover:text-white p-2.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm active:scale-95"><svg
-                                class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg></button>
-                    </div>
-                    }
-                    } @else {
-                    <p class="text-xs text-slate-400 text-center py-4">Henüz tamamlanmış randevunuz yok.</p>
-                    }
+                    <button (click)="openCreateModal()"
+                        class="text-indigo-600 bg-white hover:bg-indigo-600 hover:text-white p-2.5 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm active:scale-95"><svg
+                            class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg></button>
                 </div>
+                }
+                } @else {
+                <p class="text-xs text-slate-400 text-center py-4">Henüz tamamlanmış randevunuz yok.</p>
+                }
             </div>
         </div>
+
     </div>
     }
 
@@ -623,62 +665,170 @@
 
 
 @if (showCreateModal()) {
-<div class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden">
+<div class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-4 sm:p-6">
 
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" (click)="closeCreateModal()"
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md will-change-[opacity]" (click)="closeCreateModal()"
         [ngClass]="isModalClosing() ? 'animate-fade-out' : 'animate-fade-in'">
     </div>
 
-    <div class="relative bg-white/80 backdrop-blur-2xl border border-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl transform"
+    <div class="relative bg-white w-full max-w-md rounded-[2rem] p-6 sm:p-8 shadow-2xl will-change-transform overflow-hidden"
         [ngClass]="isModalClosing() ? 'animate-scale-down' : 'animate-scale-up'">
 
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="font-heading text-2xl font-bold text-slate-900">Yeni Randevu</h3>
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-[40px] pointer-events-none">
+        </div>
+
+        <div class="flex justify-between items-center mb-8 relative z-10">
+            <div>
+                <h3 class="font-heading text-2xl font-black text-slate-900 tracking-tight">Yeni Randevu</h3>
+                <p class="text-sm text-slate-500 font-medium mt-1">Lütfen detayları eksiksiz seçin.</p>
+            </div>
             <button (click)="closeCreateModal()"
-                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors">
+                class="text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-2.5 rounded-full transition-all active:scale-95 shadow-sm">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <form [formGroup]="appointmentForm" (ngSubmit)="submitNewAppointment()" class="space-y-5">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1.5 pl-1">Uzman (Provider) Seçin</label>
-                <select formControlName="providerId"
-                    class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3.5 text-[15px] focus:ring-2 focus:ring-indigo-500/20 focus:bg-white outline-none transition-all shadow-sm">
-                    <option value="" disabled selected>Lütfen bir uzman seçin</option>
-                    @for (provider of providers(); track provider.id) {
-                    <option [value]="provider.id">{{ provider.name }} ({{ provider.title }})</option>
+
+        <form [formGroup]="appointmentForm" (ngSubmit)="submitNewAppointment()" class="space-y-6 relative z-10">
+
+            @if (isProviderDropdownOpen() || isServiceDropdownOpen()) {
+            <div class="fixed inset-0 z-30" (click)="closeDropdowns()"></div>
+            }
+
+            <div class="relative group z-40">
+                <div
+                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-indigo-400 group-focus-within:text-indigo-600 transition-colors z-20">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+
+                <div (click)="toggleProviderDropdown()"
+                    class="block w-full pl-11 pr-10 pt-6 pb-2 text-[15px] font-medium bg-slate-50 border border-slate-200 rounded-2xl transition-all shadow-sm cursor-pointer select-none"
+                    [ngClass]="isProviderDropdownOpen() ? 'ring-2 ring-indigo-500/20 border-indigo-500 bg-white' : 'hover:bg-white'">
+
+                    @if (getSelectedProviderName(); as name) {
+                    <span class="text-slate-900">{{ name }}</span>
+                    } @else {
+                    <span class="text-slate-400">Kimi tercih edersiniz?</span>
                     }
-                </select>
+                </div>
+
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 z-20 transition-transform duration-300"
+                    [class.rotate-180]="isProviderDropdownOpen()">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <label
+                    class="absolute text-[13px] text-slate-500 font-bold uppercase tracking-wide transform -translate-y-2 scale-75 top-4 z-10 origin-[0] left-11 transition-all pointer-events-none">
+                    Uzman Seçimi
+                </label>
+
+                @if (isProviderDropdownOpen()) {
+                <div
+                    class="absolute top-[calc(100%+8px)] left-0 w-full bg-white/95 backdrop-blur-xl border border-slate-100 rounded-2xl shadow-xl overflow-hidden animate-fade-in-up">
+                    <div class="max-h-56 overflow-y-auto custom-scrollbar p-2">
+                        @for (provider of providers(); track provider.id) {
+                        <div (click)="selectProvider(provider.id)"
+                            class="px-4 py-3 rounded-xl cursor-pointer transition-colors text-[14px] font-medium flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2"
+                            [ngClass]="appointmentForm.get('providerId')?.value === provider.id ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50 hover:text-indigo-600'">
+                            <span>{{ provider.name }}</span>
+                            <span class="text-xs opacity-70">({{ provider.title }})</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1.5 pl-1">Hizmet Seçin</label>
-                <select formControlName="serviceId"
-                    class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3.5 text-[15px] focus:ring-2 focus:ring-indigo-500/20 focus:bg-white outline-none transition-all shadow-sm">
-                    <option value="" disabled selected>Lütfen bir hizmet seçin</option>
-                    @for (service of services(); track service.id) {
-                    <option [value]="service.id">{{ service.name }} - {{ service.base_price }}₺</option>
+
+            <div class="relative group z-30">
+                <div
+                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-cyan-500 group-focus-within:text-cyan-600 transition-colors z-20">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+
+                <div (click)="toggleServiceDropdown()"
+                    class="block w-full pl-11 pr-10 pt-6 pb-2 text-[15px] font-medium bg-slate-50 border border-slate-200 rounded-2xl transition-all shadow-sm cursor-pointer select-none"
+                    [ngClass]="isServiceDropdownOpen() ? 'ring-2 ring-cyan-500/20 border-cyan-500 bg-white' : 'hover:bg-white'">
+
+                    @if (getSelectedServiceName(); as name) {
+                    <span class="text-slate-900">{{ name }}</span>
+                    } @else {
+                    <span class="text-slate-400">Hangi işlemi yaptıracaksınız?</span>
                     }
-                </select>
+                </div>
+
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400 z-20 transition-transform duration-300"
+                    [class.rotate-180]="isServiceDropdownOpen()">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+                <label
+                    class="absolute text-[13px] text-slate-500 font-bold uppercase tracking-wide transform -translate-y-2 scale-75 top-4 z-10 origin-[0] left-11 transition-all pointer-events-none">
+                    Hizmet Detayı
+                </label>
+
+                @if (isServiceDropdownOpen()) {
+                <div
+                    class="absolute top-[calc(100%+8px)] left-0 w-full bg-white/95 backdrop-blur-xl border border-slate-100 rounded-2xl shadow-xl overflow-hidden animate-fade-in-up">
+                    <div class="max-h-56 overflow-y-auto custom-scrollbar p-2">
+                        @for (service of services(); track service.id) {
+                        <div (click)="selectService(service.id)"
+                            class="flex justify-between items-center px-4 py-3 rounded-xl cursor-pointer transition-colors text-[14px] font-medium"
+                            [ngClass]="appointmentForm.get('serviceId')?.value === service.id ? 'bg-cyan-50 text-cyan-700' : 'text-slate-700 hover:bg-slate-50 hover:text-cyan-600'">
+                            <span>{{ service.name }}</span>
+                            <span class="font-bold text-cyan-600 bg-cyan-50/50 px-2 py-0.5 rounded-md">{{
+                                service.base_price }}₺</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1.5 pl-1">Tarih & Saat</label>
+
+            <div class="relative group">
+                <div
+                    class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-500 group-focus-within:text-emerald-600 transition-colors z-20">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
                 <input type="datetime-local" formControlName="slotTime"
-                    class="w-full bg-white/50 border border-slate-200 rounded-xl px-4 py-3.5 text-[15px] focus:ring-2 focus:ring-indigo-500/20 focus:bg-white outline-none transition-all shadow-sm">
+                    class="block w-full pl-11 pr-4 pt-6 pb-2 text-[15px] font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all shadow-sm cursor-pointer invalid:text-slate-400" />
+                <label
+                    class="absolute text-[13px] text-slate-500 font-bold uppercase tracking-wide transform -translate-y-2 scale-75 top-4 z-10 origin-[0] left-11 transition-all pointer-events-none">
+                    Tarih ve Saat
+                </label>
             </div>
 
             <button type="submit" [disabled]="appointmentForm.invalid || isCreating()"
-                class="w-full mt-8 py-4 bg-gradient-to-r from-[#4F46E5] to-[#06B6D4] hover:opacity-90 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/25">
-                @if(isCreating()) {
-                <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                    </circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg> İşleniyor...
-                } @else { Randevuyu Kaydet }
+                class="font-heading relative w-full flex justify-center items-center gap-2 py-4 px-4 mt-2 border border-transparent text-[16px] font-bold rounded-2xl text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 bg-[length:200%_auto] hover:bg-[position:100%_center] shadow-lg shadow-indigo-500/30 transform hover:-translate-y-1 transition-all duration-500 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none group/btn active:scale-[0.98]">
+                <span class="relative z-10 flex items-center gap-2">
+                    @if(isCreating()) {
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg> İşleniyor...
+                    } @else {
+                    Randevuyu Onayla
+                    <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    }
+                </span>
             </button>
         </form>
     </div>

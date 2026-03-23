@@ -1,12 +1,11 @@
 /* ===============================
-   FULLCALENDAR MODERN SAAS UI
+   FULLCALENDAR MODERN SAAS UI (RESPONSIVE)
    =============================== */
 
 ::ng-deep {
   /* ===============================
      THEME VARIABLES
      =============================== */
-
   --fc-border-color: #eef2f7;
   --fc-page-bg-color: transparent;
   --fc-neutral-bg-color: transparent;
@@ -20,12 +19,17 @@
       -apple-system,
       sans-serif;
     color: #334155;
+    /* Mobilde takvimin genel font boyutunu biraz küçültelim */
+    font-size: 14px;
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+    }
   }
 
   /* ===============================
      CALENDAR CONTAINER
      =============================== */
-
   .fc-scrollgrid {
     border-radius: 14px;
     overflow: hidden;
@@ -39,16 +43,14 @@
   /* ===============================
      COLUMN HOVER EFFECT
      =============================== */
-
   .fc-timegrid-col:hover {
     background: #f9fafb;
     transition: background 0.15s ease;
   }
 
   /* ===============================
-     GRID
+     GRID & SLOTS
      =============================== */
-
   .fc-theme-standard td,
   .fc-theme-standard th {
     border-color: #f1f5f9 !important;
@@ -56,29 +58,40 @@
 
   .fc-timegrid-slot {
     height: 1.5em !important;
+    /* Mobilde saat hücrelerini biraz daha genişletelim ki tıklamak kolay olsun */
+    @media (max-width: 768px) {
+      height: 2em !important;
+    }
   }
 
   .fc-timegrid-slot-minor {
     border-top: 1px dashed #e5e7eb !important;
   }
 
-  /* saat yazıları */
-
+  /* Saat yazıları */
   .fc-timegrid-slot-label-cushion {
     font-size: 0.72rem;
     color: #94a3b8;
     font-weight: 500;
     padding-right: 10px !important;
+
+    @media (max-width: 768px) {
+      font-size: 0.65rem;
+      padding-right: 4px !important;
+    }
   }
 
   /* ===============================
      DAY HEADER
      =============================== */
-
   .fc-col-header-cell {
     padding: 14px 0 !important;
     border-bottom: 1px solid #e5e7eb !important;
     background: white;
+
+    @media (max-width: 768px) {
+      padding: 8px 0 !important;
+    }
 
     .fc-col-header-cell-cushion {
       color: #64748b;
@@ -86,14 +99,21 @@
       font-size: 0.75rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
+
+      @media (max-width: 768px) {
+        font-size: 0.65rem;
+        /* Mobilde gün isimleri (Örn: PZT) sığsın diye alt alta alalım */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+      }
     }
   }
 
-  /* today column */
-
+  /* Today column */
   .fc-col-header-cell.fc-day-today {
     background: #f8fafc;
-
     .fc-col-header-cell-cushion {
       color: #6366f1;
       font-weight: 700;
@@ -101,63 +121,106 @@
   }
 
   /* ===============================
-     EVENT CARDS
+     EVENT CARDS (PERFORMANSLI RENK KODLAMASI)
      =============================== */
-
   .fc-event {
     border: none !important;
-
     border-radius: 8px !important;
-
     margin: 2px 3px !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.7) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 
-    backdrop-filter: blur(4px);
-
-    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
-
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.05),
-      0 4px 8px rgba(0, 0, 0, 0.04);
-
+    /* filter ve blur yok, sadece renk ve boyut değişimi (Çok Hızlı) */
     transition:
-      transform 0.18s ease,
-      box-shadow 0.18s ease,
-      filter 0.18s ease;
-
+      transform 0.15s ease-out,
+      box-shadow 0.15s ease-out,
+      background-color 0.15s ease-out !important;
     cursor: pointer;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+      margin: 1px !important;
+      border-radius: 6px !important;
+      border-left-width: 2px !important;
+    }
 
     &:hover {
-      transform: translateY(-2px) scale(1.01);
-
-      box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.1),
-        0 10px 30px rgba(0, 0, 0, 0.06);
-
-      filter: brightness(1.03);
-
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
       z-index: 3;
+    }
+
+    /* 🌟 DURUM RENKLERİ (Yarı saydamdan -> tam opaka geçiş) */
+
+    /* 1. ONAYLANDI (Yeşil - Emerald) */
+    &.apt-booked {
+      background-color: rgba(16, 185, 129, 0.85) !important;
+      &:hover {
+        background-color: rgba(16, 185, 129, 1) !important;
+      }
+    }
+
+    /* 2. BEKLİYOR (Sarı/Turuncu - Amber) */
+    &.apt-pending {
+      background-color: rgba(245, 158, 11, 0.85) !important;
+      &:hover {
+        background-color: rgba(245, 158, 11, 1) !important;
+      }
+    }
+
+    /* 3. İPTAL EDİLDİ (Kırmızı - Rose) */
+    &.apt-cancelled {
+      background-color: rgba(244, 63, 94, 0.85) !important;
+      &:hover {
+        background-color: rgba(244, 63, 94, 1) !important;
+      }
+    }
+
+    /* Varsayılan Renk (Eğer durumu belirsiz bir randevu gelirse - İndigo) */
+    &:not(.apt-booked):not(.apt-pending):not(.apt-cancelled) {
+      background-color: rgba(99, 102, 241, 0.85) !important;
+      &:hover {
+        background-color: rgba(99, 102, 241, 1) !important;
+      }
     }
   }
 
   /* ===============================
      EVENT CONTENT
      =============================== */
+  .fc-event-main {
+    height: 100%;
+  }
 
   .custom-calendar-event {
-    padding: 2px 6px; /* Padding'i iyice kıstık */
+    padding: 4px 6px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Yazıyı yukarı yasla */
-    height: 100%;
+    justify-content: flex-start;
+    height: 105%;
     color: white;
-    line-height: 1.1; /* Satır aralığını daralttık */
+    line-height: 1.2;
+
+    @media (max-width: 768px) {
+      padding: 2px 4px;
+    }
 
     .event-title {
       font-weight: 600;
       font-size: 0.75rem;
+      /* Taşan yazıyı üç nokta (...) ile kes */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      @media (max-width: 768px) {
+        font-size: 0.65rem;
+        /* Mobilde yer çok darsa metni alta kaydırmasına izin ver */
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
     }
 
     .event-subtitle {
@@ -166,17 +229,22 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin-top: 1px; /* Boşluğu 1px'e düşürdük */
+      margin-top: 2px;
+
+      @media (max-width: 768px) {
+        font-size: 0.55rem;
+        /* Mobilde kutu çok küçükse alt başlığı gizle ki title okunsun */
+        display: none;
+      }
     }
   }
+
   /* ===============================
      NOW INDICATOR
      =============================== */
-
   .fc-now-indicator-line {
     border-top-width: 2px;
     border-color: #6366f1;
-
     box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
   }
 
@@ -185,55 +253,60 @@
   }
 
   /* ===============================
-     TOOLBAR
+     TOOLBAR (RESPONSIVE)
      =============================== */
-
   .fc-toolbar {
     margin-bottom: 18px !important;
+    gap: 12px;
+
+    /* Mobilde toolbar elemanlarını alt alta veya sıkışık dizebilmek için */
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch !important;
+
+      .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+    }
   }
 
   .fc-toolbar-title {
     font-weight: 700 !important;
-
     font-size: 1.35rem !important;
-
     color: #0f172a !important;
-
     letter-spacing: -0.01em;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem !important;
+    }
   }
 
   /* ===============================
      BUTTONS
      =============================== */
-
   .fc-button-primary {
     background: white !important;
-
     border: 1px solid #e5e7eb !important;
-
     color: #475569 !important;
-
     border-radius: 10px !important;
-
     padding: 7px 15px !important;
-
     font-weight: 600 !important;
-
     font-size: 0.82rem !important;
-
     text-transform: capitalize !important;
-
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-
     transition: all 0.15s ease !important;
+
+    @media (max-width: 768px) {
+      padding: 6px 10px !important;
+      font-size: 0.75rem !important;
+    }
 
     &:hover {
       background: #f8fafc !important;
-
       border-color: #dbe3ee !important;
-
       color: #0f172a !important;
-
       transform: translateY(-1px);
     }
 
@@ -246,16 +319,21 @@
     }
   }
 
-  /* active button */
-
+  /* Active button */
   .fc-button-active {
     background: linear-gradient(135deg, #6366f1, #22c55e) !important;
-
     color: white !important;
-
     border: none !important;
+    box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25) !important;
+  }
 
-    box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25);
+  /* Mobilde buton gruplarının (Ay, Hafta, Gün) yuvarlak köşeleri bozulmasın diye */
+  .fc-button-group {
+    @media (max-width: 768px) {
+      width: 100%;
+      .fc-button {
+        flex: 1; /* Butonları eşit genişlikte yay */
+      }
+    }
   }
 }
-

@@ -46,6 +46,9 @@ export class DashboardComponent implements OnInit {
   isModalClosing = signal(false);
   isCreating = signal(false);
 
+  isProviderDropdownOpen = signal(false);
+  isServiceDropdownOpen = signal(false);
+
   appointmentForm = this.fb.group({
     providerId: ['', Validators.required],
     serviceId: ['', Validators.required],
@@ -61,6 +64,58 @@ export class DashboardComponent implements OnInit {
         (a, b) =>
           new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
       );
+  });
+
+  // 1. Bekleyen (Pending) veya Yaklaşan (Booked olup tarihi gelmemiş) Randevular
+  pendingAppointmentCount = computed(() => {
+    const now = new Date();
+    return this.appointmentService.appointments().filter(
+      (apt) =>
+        // Sadece onay bekleyenler VEYA onaylanmış ama zamanı henüz geçmemiş olanlar
+        apt.status === 'pending' ||
+        (apt.status === 'booked' && new Date(apt.slot_time) > now),
+    ).length;
+  });
+
+  // 2. Toplam Ziyaret (Sadece Tamamlananlar - Completed)
+  // Not: Eğer sisteminde 'completed' diye bir statü yoksa ve sadece tarihi geçmiş 'booked' olanları
+  // tamamlanmış sayıyorsan filtreyi: apt.status === 'booked' && new Date(apt.slot_time) < now yapmalısın.
+  totalVisitsCount = computed(() => {
+    return this.appointmentService
+      .appointments()
+      .filter(
+        (apt) =>
+          apt.status === 'completed' ||
+          (apt.status === 'booked' && new Date(apt.slot_time) < new Date()),
+      ).length;
+  });
+
+  // 3. Favori Uzman (Kullanıcının en çok randevu aldığı uzman)
+  favoriteProvider = computed(() => {
+    const apts = this.appointmentService.appointments();
+    if (!apts || apts.length === 0) return 'Henüz Yok';
+
+    // Uzmanların isimlerini sayalım
+    const providerCounts: { [name: string]: number } = {};
+
+    apts.forEach((apt) => {
+      // Randevunun durumuna bakmaksızın veya sadece tamamlananlara bakmak istersen buraya if ekleyebilirsin
+      const name = apt.provider_name || 'Bilinmeyen Uzman';
+      providerCounts[name] = (providerCounts[name] || 0) + 1;
+    });
+
+    // En çok tekrar eden ismi bulalım
+    let favorite = 'Henüz Yok';
+    let maxCount = 0;
+
+    for (const [name, count] of Object.entries(providerCounts)) {
+      if (count > maxCount) {
+        maxCount = count;
+        favorite = name;
+      }
+    }
+
+    return favorite;
   });
 
   // Sınıfın içine (diğer sinyallerin yanına) ekle:
@@ -327,5 +382,47 @@ export class DashboardComponent implements OnInit {
         });
       },
     );
+  }
+
+  // Menüleri Aç/Kapat
+  toggleProviderDropdown() {
+    this.isProviderDropdownOpen.update((v) => !v);
+    this.isServiceDropdownOpen.set(false); // Diğerini kapat ki üst üste binmesin
+  }
+
+  toggleServiceDropdown() {
+    this.isServiceDropdownOpen.update((v) => !v);
+    this.isProviderDropdownOpen.set(false);
+  }
+
+  closeDropdowns() {
+    this.isProviderDropdownOpen.set(false);
+    this.isServiceDropdownOpen.set(false);
+  }
+
+  // Değer Seçimi
+  selectProvider(id: string) {
+    this.appointmentForm.patchValue({ providerId: id });
+    this.closeDropdowns();
+  }
+
+  selectService(id: string) {
+    this.appointmentForm.patchValue({ serviceId: id });
+    this.closeDropdowns();
+  }
+
+  // Arayüzde seçili olanın adını göstermek için
+  getSelectedProviderName() {
+    const id = this.appointmentForm.get('providerId')?.value;
+    if (!id) return null;
+    const provider = this.providers().find((p) => p.id === id);
+    return provider ? `${provider.name} (${provider.title})` : null;
+  }
+
+  getSelectedServiceName() {
+    const id = this.appointmentForm.get('serviceId')?.value;
+    if (!id) return null;
+    const srv = this.services().find((s) => s.id === id);
+    return srv ? `${srv.name} - ${srv.base_price}₺` : null;
   }
 }
