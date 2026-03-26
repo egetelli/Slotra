@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UiService } from '../../core/services/ui.service'; // UiService'i import ettik
 import {
   ServiceItem,
   SettingsService,
@@ -16,6 +17,7 @@ import { finalize } from 'rxjs';
 })
 export class SettingsComponent implements OnInit {
   private settingsService = inject(SettingsService);
+  private uiService = inject(UiService); // UiService'i inject ettik
 
   // UI State
   activeTab = 'schedule';
@@ -78,7 +80,13 @@ export class SettingsComponent implements OnInit {
           if (data.services) this.services.set(data.services);
           if (data.profile) this.profile.set(data.profile);
         },
-        error: (err) => console.error('Ayarlar yüklenirken hata:', err),
+        error: (err) => {
+          this.uiService.showToast(
+            'Ayarlar yüklenirken bir hata oluştu.',
+            'error',
+          );
+          console.error('Ayarlar yüklenirken hata:', err);
+        },
       });
   }
 
@@ -90,8 +98,15 @@ export class SettingsComponent implements OnInit {
       .updateSchedule(this.schedule())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => alert('Mesai saatleri başarıyla güncellendi!'),
-        error: (err) => console.error('Mesai hatası:', err),
+        next: () =>
+          this.uiService.showToast(
+            'Mesai saatleri başarıyla güncellendi!',
+            'success',
+          ),
+        error: (err) => {
+          this.uiService.showToast('Mesai saatleri kaydedilemedi.', 'error');
+          console.error('Mesai hatası:', err);
+        },
       });
   }
 
@@ -101,8 +116,15 @@ export class SettingsComponent implements OnInit {
       .updateServices(this.services())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => alert('Hizmet listeniz güncellendi!'),
-        error: (err) => console.error('Hizmet hatası:', err),
+        next: () =>
+          this.uiService.showToast('Hizmet listeniz güncellendi!', 'success'),
+        error: (err) => {
+          this.uiService.showToast(
+            'Hizmetler kaydedilirken bir hata oluştu.',
+            'error',
+          );
+          console.error('Hizmet hatası:', err);
+        },
       });
   }
 
@@ -112,8 +134,18 @@ export class SettingsComponent implements OnInit {
       .updateProfile(this.profile())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () => alert('Profil bilgileriniz başarıyla kaydedildi!'),
-        error: (err) => console.error('Profil hatası:', err),
+        next: () =>
+          this.uiService.showToast(
+            'Profil bilgileriniz başarıyla kaydedildi!',
+            'success',
+          ),
+        error: (err) => {
+          this.uiService.showToast(
+            'Profil güncellenirken bir hata oluştu.',
+            'error',
+          );
+          console.error('Profil hatası:', err);
+        },
       });
   }
 
@@ -127,8 +159,16 @@ export class SettingsComponent implements OnInit {
   }
 
   deleteService(index: number) {
-    if (confirm('Bu hizmeti silmek istediğinize emin misiniz?')) {
-      this.services.update((prev) => prev.filter((_, i) => i !== index));
-    }
+    // Klasik confirm yerine UiService'in şık onay modalını kullanıyoruz
+    this.uiService.openConfirm(
+      'Hizmeti Sil',
+      'Bu hizmeti silmek istediğinize emin misiniz?',
+      'danger',
+      () => {
+        // Kullanıcı onaylarsa çalışacak kısım
+        this.services.update((prev) => prev.filter((_, i) => i !== index));
+        this.uiService.showToast('Hizmet listeden kaldırıldı.', 'success');
+      },
+    );
   }
 }
