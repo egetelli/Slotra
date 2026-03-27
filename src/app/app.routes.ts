@@ -47,6 +47,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'clients',
+        loadComponent: () =>
+          import('./features/clients/clients.component').then(
+            (m) => m.ClientsComponent,
+          ),
+        canActivate: [roleGuard],
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings.component').then(

@@ -1,4 +1,4 @@
-/* Arka Plan Blobları */
+/* Arka Plan Blobları (Mevcut yapıyı koruyoruz) */
 .blob {
   animation: float 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
   filter: blur(100px);
@@ -32,24 +32,58 @@
   }
 }
 
-/* Modallar için Animasyonlar */
+/* --- YENİ TABLO TASARIMI (GLASSMORPHISM) --- */
+
+.table-wrapper {
+  background: rgba(255, 255, 255, 0.3); // Ana tablo alanı hafif şeffaf
+  backdrop-filter: blur(
+    12px
+  ); // Arkadaki blobları tatlı bir şekilde bulanıklaştırır
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+// Başlık alanı
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr 1.5fr 1fr; // Sütun genişliklerini sabitleyin
+  padding: 1rem 1.5rem;
+  color: #4a5568;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+// Her bir satır (Appointment Row)
+.appointment-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 2fr 1.5fr 1fr;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  margin-top: 8px; // Satırlar arası çok az boşluk
+  background: rgba(255, 255, 255, 0.4); // Satır şeffaflığı
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.7); // Üzerine gelince belirginleşir
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* --- MODAL VE DİĞER ANİMASYONLAR (Mevcut) --- */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
-.animate-fade-out {
-  animation: fadeIn 0.3s ease-out reverse forwards;
-}
 .animate-scale-up {
   animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.animate-scale-down {
-  animation: scaleUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards;
-}
-.animate-slide-in-right {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.animate-slide-out-right {
-  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards;
 }
 
 @keyframes fadeIn {
@@ -70,18 +104,7 @@
     transform: scale(1) translateY(0);
   }
 }
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(40px) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0) translateY(0);
-  }
-}
 
-/* Mobilde main content paddingini ayarla */
 @media (max-width: 1024px) {
   main {
     width: 100vw;

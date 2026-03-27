@@ -8,11 +8,17 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { ProviderService } from '../../../core/services/provider.service';
 import { ServiceService } from '../../../core/services/service.service';
+import { SettingsService } from '../../../core/services/settings.service';
 import { Provider } from '../../../core/models/provider.model';
 import { ServiceItem } from '../../../core/models/service-item.model';
 import { SocketService } from '../../../core/services/socket.service';
@@ -21,7 +27,7 @@ import { UiService } from '../../../core/services/ui.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -32,7 +38,9 @@ export class DashboardComponent implements OnInit {
   private fb = inject(FormBuilder);
   private providerService = inject(ProviderService);
   private serviceService = inject(ServiceService);
+  private settingsService = inject(SettingsService); // Uzman hizmetlerini çekmek için eklendi
   private socketService = inject(SocketService);
+
   isLoading = signal<boolean>(true);
 
   currentUser = this.authService.user;
@@ -41,13 +49,26 @@ export class DashboardComponent implements OnInit {
   providers = signal<Provider[]>([]);
   services = signal<ServiceItem[]>([]);
 
-  // Modal State
+  // Modal State (Müşteri için)
   showCreateModal = signal(false);
   isModalClosing = signal(false);
   isCreating = signal(false);
 
+  // Dropdown State
   isProviderDropdownOpen = signal(false);
   isServiceDropdownOpen = signal(false);
+
+  // --- MANUEL RANDEVU STATE (Uzman İçin Yeni Eklendi) ---
+  showManualBookingModal = signal(false);
+  isSubmittingManual = signal(false);
+  providerServices = signal<ServiceItem[]>([]); // Uzmanın kendi hizmetleri
+  manualBookingForm = {
+    guestName: '',
+    serviceId: '',
+    date: '',
+    time: '',
+  };
+  // ----------------------------------------------------
 
   appointmentForm = this.fb.group({
     providerId: ['', Validators.required],
@@ -69,17 +90,16 @@ export class DashboardComponent implements OnInit {
   // 1. Bekleyen (Pending) veya Yaklaşan (Booked olup tarihi gelmemiş) Randevular
   pendingAppointmentCount = computed(() => {
     const now = new Date();
-    return this.appointmentService.appointments().filter(
-      (apt) =>
-        // Sadece onay bekleyenler VEYA onaylanmış ama zamanı henüz geçmemiş olanlar
-        apt.status === 'pending' ||
-        (apt.status === 'booked' && new Date(apt.slot_time) > now),
-    ).length;
+    return this.appointmentService
+      .appointments()
+      .filter(
+        (apt) =>
+          apt.status === 'pending' ||
+          (apt.status === 'booked' && new Date(apt.slot_time) > now),
+      ).length;
   });
 
   // 2. Toplam Ziyaret (Sadece Tamamlananlar - Completed)
-  // Not: Eğer sisteminde 'completed' diye bir statü yoksa ve sadece tarihi geçmiş 'booked' olanları
-  // tamamlanmış sayıyorsan filtreyi: apt.status === 'booked' && new Date(apt.slot_time) < now yapmalısın.
   totalVisitsCount = computed(() => {
     return this.appointmentService
       .appointments()
@@ -95,16 +115,13 @@ export class DashboardComponent implements OnInit {
     const apts = this.appointmentService.appointments();
     if (!apts || apts.length === 0) return 'Henüz Yok';
 
-    // Uzmanların isimlerini sayalım
     const providerCounts: { [name: string]: number } = {};
 
     apts.forEach((apt) => {
-      // Randevunun durumuna bakmaksızın veya sadece tamamlananlara bakmak istersen buraya if ekleyebilirsin
       const name = apt.provider_name || 'Bilinmeyen Uzman';
       providerCounts[name] = (providerCounts[name] || 0) + 1;
     });
 
-    // En çok tekrar eden ismi bulalım
     let favorite = 'Henüz Yok';
     let maxCount = 0;
 
@@ -118,14 +135,12 @@ export class DashboardComponent implements OnInit {
     return favorite;
   });
 
-  // Sınıfın içine (diğer sinyallerin yanına) ekle:
   today = new Date();
 
-  // 📅 MÜŞTERİ: BUGÜN VE GELECEKTEKİ RANDEVULAR (Tablo ve Sağ Üst Kart İçin)
+  // 📅 MÜŞTERİ: BUGÜN VE GELECEKTEKİ RANDEVULAR
   upcomingCustomerAppointments = computed(() => {
     const allApts = this.appointmentService.appointments();
     const now = new Date();
-    // Saati sıfırlayıp sadece gün bazlı karşılaştırma yapmak istersen .setHours(0,0,0,0) yapabilirsin
     return allApts
       .filter((a) => a.status !== 'cancelled' && new Date(a.slot_time) >= now)
       .sort(
@@ -134,7 +149,7 @@ export class DashboardComponent implements OnInit {
       );
   });
 
-  // 🔄 MÜŞTERİ: TEKRAR AL (Zamanı geçmiş veya tamamlanmış randevular)
+  // 🔄 MÜŞTERİ: TEKRAR AL
   pastAppointments = computed(() => {
     const allApts = this.appointmentService.appointments();
     const now = new Date();
@@ -148,7 +163,7 @@ export class DashboardComponent implements OnInit {
       .sort(
         (a, b) =>
           new Date(b.slot_time).getTime() - new Date(a.slot_time).getTime(),
-      ) // En yeniden eskiye
+      )
       .slice(0, 5);
   });
 
@@ -289,19 +304,33 @@ export class DashboardComponent implements OnInit {
     this.appointmentService.fetchUpcomingAppointments();
     setTimeout(() => this.isLoading.set(false), 1500);
   }
+
   loadProviderDashboard() {
     this.isLoading.set(true);
     this.appointmentService.fetchProviderAppointments();
+
+    // Uzman dashboardu yüklenirken, manuel randevu için hizmetlerini de çekelim
+    this.settingsService.getAllSettings().subscribe({
+      next: (data) => {
+        if (data.services) {
+          this.providerServices.set(data.services);
+        }
+      },
+    });
+
     setTimeout(() => this.isLoading.set(false), 1500);
   }
+
   loadAdminDashboard() {
     console.log('Admin verileri yükleniyor...');
   }
 
+  // --- MÜŞTERİ RANDEVU MODALI (Mevcut) ---
   openCreateModal() {
     this.isModalClosing.set(false);
     this.showCreateModal.set(true);
   }
+
   closeCreateModal() {
     this.isModalClosing.set(true);
     setTimeout(() => {
@@ -333,6 +362,85 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
+
+  // --- UZMAN İÇİN YENİ EKLENEN MANUEL RANDEVU İŞLEMLERİ ---
+
+  openManualBookingModal() {
+    this.showManualBookingModal.set(true);
+  }
+
+  closeManualBookingModal() {
+    this.showManualBookingModal.set(false);
+    this.manualBookingForm = {
+      guestName: '',
+      serviceId: '',
+      date: '',
+      time: '',
+    };
+  }
+
+  submitManualBooking() {
+    const { guestName, serviceId, date, time } = this.manualBookingForm;
+
+    if (!guestName || !serviceId || !date || !time) {
+      this.uiService.showToast('Lütfen tüm alanları doldurun.', 'error');
+      return;
+    }
+
+    // 1. KULLANICI KONTROLÜ: providerId'nin kesinlikle string olmasını garantiye alıyoruz
+    const currentProviderId = this.currentUser()?.id;
+    if (!currentProviderId) {
+      this.uiService.showToast(
+        'Kullanıcı oturumu bulunamadı, lütfen tekrar giriş yapın.',
+        'error',
+      );
+      return;
+    }
+
+    this.isSubmittingManual.set(true);
+
+    // Tarih ve saati birleştirip ISO formatına çevir
+    const slotTime = new Date(`${date}T${time}:00`).toISOString();
+
+    // 2. PAYLOAD DÜZENLEMESİ: TypeScript'in kızmaması için "as any" ile tip kısıtlamasını esnetiyoruz.
+    // Backend'de yazdığımız mantığa göre uzman randevu alırken 'customerId' bekliyorduk.
+    // Şimdilik kendi user ID'sini gönderiyoruz ki veritabanı kısıtlamalarına takılmasın.
+    const payload = {
+      guestName: guestName,
+      customerId: currentProviderId, // Backend'e zorunlu alan olarak gönderiyoruz
+      serviceId: serviceId,
+      slotTime: slotTime,
+      providerId: currentProviderId, // Kesinlikle string oldu
+    } as any; // <-- TypeScript hatasını bypass etmek için (Service interface'ini güncelleyene kadar)
+
+    this.appointmentService.createAppointment(payload).subscribe({
+      next: () => {
+        this.uiService.showToast('Manuel randevu eklendi!', 'success');
+        this.closeManualBookingModal();
+        this.isSubmittingManual.set(false);
+        // Listeyi yenilemek için
+        this.loadProviderDashboard();
+      },
+      error: (err) => {
+        this.uiService.showToast(
+          err.error?.message || 'Bir hata oluştu',
+          'error',
+        );
+        this.isSubmittingManual.set(false);
+      },
+    });
+  }
+
+  copyProfileLink() {
+    const url = `${window.location.origin}/book/${this.currentUser()?.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.uiService.showToast(
+        'Rezervasyon linki panoya kopyalandı!',
+        'success',
+      );
+    });
+  }
+  // ---------------------------------------------------------
 
   onApproveClick(id: string) {
     this.uiService.openConfirm(
@@ -369,15 +477,14 @@ export class DashboardComponent implements OnInit {
               'Randevu başarıyla iptal edildi.',
               'success',
             );
-            this.uiService.closeConfirm(); // Başarıda kapat
+            this.uiService.closeConfirm();
           },
           error: (err) => {
-            // 🌟 Hata mesajını Toastr'a fırlat
             this.uiService.showToast(
               err.error?.message || 'Yetki hatası!',
               'error',
             );
-            this.uiService.closeConfirm(); // Hata gelse bile modalı kapat ki kullanıcı takılı kalmasın
+            this.uiService.closeConfirm();
           },
         });
       },
@@ -387,7 +494,7 @@ export class DashboardComponent implements OnInit {
   // Menüleri Aç/Kapat
   toggleProviderDropdown() {
     this.isProviderDropdownOpen.update((v) => !v);
-    this.isServiceDropdownOpen.set(false); // Diğerini kapat ki üst üste binmesin
+    this.isServiceDropdownOpen.set(false);
   }
 
   toggleServiceDropdown() {

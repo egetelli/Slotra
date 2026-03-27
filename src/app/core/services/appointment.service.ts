@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { tap, catchError, finalize, map } from 'rxjs/operators'; // 'map' eklendi
 import { of, Observable } from 'rxjs';
 import { Appointment } from '../models/schedule.model';
+import { Client } from '../models/client.model';
 
 // Backend'in standart dönüş tipini (Wrapper) yakalamak için interface
 export interface ApiResponse<T> {
@@ -163,5 +164,12 @@ export class AppointmentService {
       // Yoksa listenin en başına ekle
       return [newAppointment, ...currentList];
     });
+  }
+
+  getProviderClients() {
+    // API URL'inin senin sistemine uygun olduğundan emin ol (örn: environment.apiUrl + '/api/appointments/clients')
+    return this.http.get<{ success: boolean; data: Client[] }>(
+      `${this.API_URL}/clients`,
+    );
   }
 }

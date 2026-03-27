@@ -1,0 +1,123 @@
+<div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+        <div>
+            <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tight">
+                Müşteriler
+            </h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-widest">
+                    {{ filteredClients().length }} Toplam Kayıt
+                </p>
+            </div>
+        </div>
+
+        <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" placeholder="Hızlı ara..."
+                class="w-full sm:w-80 pl-11 pr-4 py-3 bg-slate-100/50 border-none rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+        </div>
+    </div>
+
+    <div
+        class="bg-white/50 backdrop-blur-md border border-white/80 rounded-[2.5rem] p-4 shadow-xl shadow-slate-200/50 flex-1 overflow-hidden flex flex-col">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-separate border-spacing-y-3 min-w-[1000px]">
+                <thead>
+                    <tr class="text-slate-400">
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Müşteri Profili</th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Son Etkinlik</th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-center">Geçmiş Ran.</th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-center">Planlanan Ran.
+                        </th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right">Net Ciro
+                        </th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right">Beklenen Ciro
+                        </th>
+                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right"></th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    @for (client of filteredClients(); track client.customer_id) {
+                    <tr class="group bg-white hover:bg-indigo-50/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md rounded-2xl"
+                        (click)="openClientDetails(client)">
+
+                        <td class="px-6 py-5 rounded-l-3xl">
+                            <div class="flex items-center gap-4">
+                                <div class="relative">
+                                    <div
+                                        class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-400 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform">
+                                        {{ (client.customer_name.charAt(0) || '?') | uppercase }}
+                                    </div>
+                                    <div
+                                        class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full">
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="text-base font-black text-slate-800 leading-none mb-1">{{
+                                        client.customer_name }}</p>
+                                    <p class="text-xs font-bold text-slate-400 italic">{{ client.customer_email }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5">
+                            <div class="flex flex-col">
+                                <span class="text-slate-700 font-black tracking-tight">{{ client.last_visit_date |
+                                    date:'dd MMM yyyy' }}</span>
+                                <span class="text-[10px] font-bold text-slate-400">{{ client.last_visit_date |
+                                    date:'HH:mm' }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5 text-center font-mono">
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl font-black text-xs">
+                                {{ client.completed_visits | number:'2.0-0' }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-5 text-center font-mono">
+                            <span class="bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-black text-xs">
+                                {{ client.upcoming_visits | number:'2.0-0' }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-5 text-right">
+                            <div class="flex flex-col items-end">
+                                <span class="text-lg font-black text-emerald-600 tracking-tighter">
+                                    {{ client.realized_revenue | number:'1.2-2' }} <small
+                                        class="text-[10px] ml-0.5">₺</small>
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5 text-right">
+                            <span class="text-sm font-bold text-slate-400/80 bg-slate-50 px-2 py-1 rounded-lg">
+                                {{ client.expected_revenue | number:'1.2-2' }} ₺
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-5 text-right rounded-r-3xl">
+                            <div class="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div
+                                    class="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

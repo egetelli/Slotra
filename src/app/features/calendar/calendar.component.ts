@@ -83,7 +83,7 @@ export class CalendarComponent implements OnInit {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     locale: trLocale,
     slotMinTime: '08:00:00',
-    slotMaxTime: '21:00:00',
+    slotMaxTime: '23:00:00',
     allDaySlot: false,
     editable: false,
     selectable: true,

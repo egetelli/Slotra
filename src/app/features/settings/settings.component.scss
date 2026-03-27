@@ -12,3 +12,41 @@
 .animate-fade-in-up {
   animation: fadeInUp 0.4s ease-out forwards;
 }
+
+/* Modern & İnce Scrollbar Tasarımı */
+.custom-scrollbar {
+  // Firefox için (kısıtlı destek)
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.2) transparent;
+
+  // Webkit (Chrome, Safari, Edge) için tam kontrol
+  &::-webkit-scrollbar {
+    width: 6px; // Çok daha zarif ve ince
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    /* Köşelerin yuvarlaklığını kurtaran sihirli dokunuş: */
+    margin-block: 2rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2); // Indigo renginde çok hafif şeffaf
+    border-radius: 50px;
+    border: 2px solid transparent; // Track ile arasında boşluk hissi yaratır
+
+    &:hover {
+      background: rgba(
+        99,
+        102,
+        241,
+        0.5
+      ); // Üzerine gelince biraz daha belirginleşir
+    }
+  }
+}
+
+/* Scrollbar'ın köşeleri ezmesini engellemek için ana kapsayıcıya ufak bir nefes payı */
+.flex-1.min-w-0.custom-scrollbar {
+  scrollbar-gutter: stable; // İçeriğin scrollbar çıkınca titremesini engeller
+}
