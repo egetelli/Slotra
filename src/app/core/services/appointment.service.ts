@@ -172,4 +172,17 @@ export class AppointmentService {
       `${this.API_URL}/clients`,
     );
   }
+
+  getProviderAnalytics() {
+    return this.http.get<{ success: boolean; data: any }>(
+      `${this.API_URL}/analytics`,
+    );
+  }
+
+  // İsim veya E-postaya göre müşteri arama (Sadece role = 'customer' olanlar)
+  searchCustomers(query: string) {
+    return this.http.get<{ success: boolean; data: any[] }>(
+      `${this.API_URL}/search-customers?q=${query}`,
+    );
+  }
 }

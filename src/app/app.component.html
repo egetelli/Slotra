@@ -83,10 +83,21 @@
             }
         </nav>
 
-        <div class="p-4 mt-auto border-t border-slate-100/50">
+        <div class="p-4 mt-auto border-t border-slate-100/50 bg-white/20 backdrop-blur-md">
             <button (click)="logout(); closeSidebar()"
-                class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/50 hover:bg-white/80 border border-slate-200/60 rounded-2xl text-slate-600 hover:text-red-600 transition-all font-medium text-[14px]">
-                Güvenli Çıkış
+                class="group relative w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white/80 hover:bg-rose-600 border border-slate-200/60 hover:border-rose-600 rounded-[1.25rem] text-slate-600 hover:text-white transition-all duration-300 font-bold text-[14px] shadow-sm hover:shadow-lg hover:shadow-rose-500/30 active:scale-[0.97]">
+
+                <svg class="w-5 h-5 text-slate-400 group-hover:text-white transition-colors duration-300" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+
+                <span class="tracking-wide">Güvenli Çıkış</span>
+
+                <div
+                    class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none">
+                </div>
             </button>
         </div>
     </aside>

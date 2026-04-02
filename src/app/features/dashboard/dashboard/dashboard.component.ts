@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit {
   private fb = inject(FormBuilder);
   private providerService = inject(ProviderService);
   private serviceService = inject(ServiceService);
-  private settingsService = inject(SettingsService); // Uzman hizmetlerini çekmek için eklendi
+  private settingsService = inject(SettingsService);
   private socketService = inject(SocketService);
 
   isLoading = signal<boolean>(true);
@@ -58,17 +58,23 @@ export class DashboardComponent implements OnInit {
   isProviderDropdownOpen = signal(false);
   isServiceDropdownOpen = signal(false);
 
-  // --- MANUEL RANDEVU STATE (Uzman İçin Yeni Eklendi) ---
+  // --- MANUEL RANDEVU STATE ---
   showManualBookingModal = signal(false);
   isSubmittingManual = signal(false);
-  providerServices = signal<ServiceItem[]>([]); // Uzmanın kendi hizmetleri
+  providerServices = signal<ServiceItem[]>([]);
+
+  // Akıllı Arama (Smart Dropdown) Değişkenleri
+  customerSearchQuery = signal('');
+  searchResults = signal<any[]>([]);
+  isSearching = signal(false);
+  showCustomerDropdown = signal(false);
+  selectedCustomer = signal<{ id: string | null; name: string } | null>(null);
+
   manualBookingForm = {
-    guestName: '',
     serviceId: '',
     date: '',
     time: '',
   };
-  // ----------------------------------------------------
 
   appointmentForm = this.fb.group({
     providerId: ['', Validators.required],
@@ -76,7 +82,7 @@ export class DashboardComponent implements OnInit {
     slotTime: ['', Validators.required],
   });
 
-  //Provider için bekleyen randevular tablosu
+  // --- HESAPLANMIŞ VERİLER (COMPUTED) ---
   pendingAppointments = computed(() => {
     return this.appointmentService
       .appointments()
@@ -87,7 +93,6 @@ export class DashboardComponent implements OnInit {
       );
   });
 
-  // 1. Bekleyen (Pending) veya Yaklaşan (Booked olup tarihi gelmemiş) Randevular
   pendingAppointmentCount = computed(() => {
     const now = new Date();
     return this.appointmentService
@@ -99,7 +104,6 @@ export class DashboardComponent implements OnInit {
       ).length;
   });
 
-  // 2. Toplam Ziyaret (Sadece Tamamlananlar - Completed)
   totalVisitsCount = computed(() => {
     return this.appointmentService
       .appointments()
@@ -110,34 +114,27 @@ export class DashboardComponent implements OnInit {
       ).length;
   });
 
-  // 3. Favori Uzman (Kullanıcının en çok randevu aldığı uzman)
   favoriteProvider = computed(() => {
     const apts = this.appointmentService.appointments();
     if (!apts || apts.length === 0) return 'Henüz Yok';
-
     const providerCounts: { [name: string]: number } = {};
-
     apts.forEach((apt) => {
       const name = apt.provider_name || 'Bilinmeyen Uzman';
       providerCounts[name] = (providerCounts[name] || 0) + 1;
     });
-
     let favorite = 'Henüz Yok';
     let maxCount = 0;
-
     for (const [name, count] of Object.entries(providerCounts)) {
       if (count > maxCount) {
         maxCount = count;
         favorite = name;
       }
     }
-
     return favorite;
   });
 
   today = new Date();
 
-  // 📅 MÜŞTERİ: BUGÜN VE GELECEKTEKİ RANDEVULAR
   upcomingCustomerAppointments = computed(() => {
     const allApts = this.appointmentService.appointments();
     const now = new Date();
@@ -149,11 +146,9 @@ export class DashboardComponent implements OnInit {
       );
   });
 
-  // 🔄 MÜŞTERİ: TEKRAR AL
   pastAppointments = computed(() => {
     const allApts = this.appointmentService.appointments();
     const now = new Date();
-
     return allApts
       .filter(
         (a) =>
@@ -167,27 +162,32 @@ export class DashboardComponent implements OnInit {
       .slice(0, 5);
   });
 
-  // 📊 İSTATİSTİK HESAPLAMALARI
   stats = computed(() => {
     const allApts = this.appointmentService.appointments();
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
-
     const todayApts = allApts.filter((a) => a.slot_time.startsWith(todayStr));
 
     const todayRealizedEarnings = todayApts
-      .filter((a) => a.status === 'completed')
+      .filter(
+        (a) =>
+          a.status === 'completed' ||
+          (a.status === 'booked' && new Date(a.slot_time) < now),
+      )
       .reduce((sum, a) => sum + Number(a.total_price), 0);
-
     const todayExpectedEarnings = todayApts
-      .filter((a) => a.status === 'booked')
+      .filter((a) => a.status === 'booked' && new Date(a.slot_time) >= now)
       .reduce((sum, a) => sum + Number(a.total_price), 0);
 
     return {
       todayRealizedEarnings,
       todayExpectedEarnings,
       totalToday: todayApts.length,
-      completedToday: todayApts.filter((a) => a.status === 'completed').length,
+      completedToday: todayApts.filter(
+        (a) =>
+          a.status === 'completed' ||
+          (a.status === 'booked' && new Date(a.slot_time) < now),
+      ).length,
       nextCustomer: allApts
         .filter((a) => new Date(a.slot_time) > now && a.status === 'booked')
         .sort(
@@ -206,7 +206,6 @@ export class DashboardComponent implements OnInit {
     };
   });
 
-  // 📈 HAFTALIK DOLULUK ORANI
   occupancyRates = computed(() => {
     const allApts = this.appointmentService.appointments();
     const capacityPerDay = 10;
@@ -229,12 +228,10 @@ export class DashboardComponent implements OnInit {
       targetDate.setDate(monday.getDate() + index);
       const dateStr = targetDate.toISOString().split('T')[0];
       const todayStr = now.toISOString().split('T')[0];
-
       const count = allApts.filter(
         (a) => a.slot_time.startsWith(dateStr) && a.status !== 'cancelled',
       ).length;
       const percentage = Math.min((count / capacityPerDay) * 100, 100);
-
       return { day: label, percentage, isToday: dateStr === todayStr };
     });
   });
@@ -245,18 +242,15 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.socketService.connect();
-
     this.socketService.onEvent('appointment_updated', (data: any) => {
       this.appointmentService.updateAppointmentStatusLocally(
         data.appointmentId,
         data.status,
       );
     });
-
     this.socketService.onEvent('new_appointment', (data: any) => {
       this.appointmentService.addNewAppointmentLocally(data.appointment);
     });
-
     this.socketService.onEvent('appointment_cancelled', (data: any) => {
       this.appointmentService.updateAppointmentStatusLocally(
         data.appointmentId,
@@ -284,7 +278,6 @@ export class DashboardComponent implements OnInit {
     this.providerService.getProviders().subscribe({
       next: (data) => this.providers.set(data),
     });
-
     this.appointmentForm
       .get('providerId')
       ?.valueChanges.subscribe((selectedProviderId) => {
@@ -308,8 +301,6 @@ export class DashboardComponent implements OnInit {
   loadProviderDashboard() {
     this.isLoading.set(true);
     this.appointmentService.fetchProviderAppointments();
-
-    // Uzman dashboardu yüklenirken, manuel randevu için hizmetlerini de çekelim
     this.settingsService.getAllSettings().subscribe({
       next: (data) => {
         if (data.services) {
@@ -317,7 +308,6 @@ export class DashboardComponent implements OnInit {
         }
       },
     });
-
     setTimeout(() => this.isLoading.set(false), 1500);
   }
 
@@ -325,7 +315,7 @@ export class DashboardComponent implements OnInit {
     console.log('Admin verileri yükleniyor...');
   }
 
-  // --- MÜŞTERİ RANDEVU MODALI (Mevcut) ---
+  // --- MÜŞTERİ RANDEVU MODALI ---
   openCreateModal() {
     this.isModalClosing.set(false);
     this.showCreateModal.set(true);
@@ -349,7 +339,6 @@ export class DashboardComponent implements OnInit {
       serviceId: formValues.serviceId!,
       slotTime: new Date(formValues.slotTime!).toISOString(),
     };
-
     this.appointmentService.createAppointment(payload).subscribe({
       next: () => {
         this.isCreating.set(false);
@@ -363,62 +352,106 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // --- UZMAN İÇİN YENİ EKLENEN MANUEL RANDEVU İŞLEMLERİ ---
-
+  // --- UZMAN MANUEL RANDEVU İŞLEMLERİ (YENİLENDİ) ---
   openManualBookingModal() {
     this.showManualBookingModal.set(true);
   }
 
   closeManualBookingModal() {
     this.showManualBookingModal.set(false);
-    this.manualBookingForm = {
-      guestName: '',
-      serviceId: '',
-      date: '',
-      time: '',
-    };
+    this.customerSearchQuery.set('');
+    this.selectedCustomer.set(null);
+    this.searchResults.set([]);
+    this.manualBookingForm = { serviceId: '', date: '', time: '' };
   }
 
-  submitManualBooking() {
-    const { guestName, serviceId, date, time } = this.manualBookingForm;
+  // Arama Tetikleyici
+  onSearchInput(event: any) {
+    const val = event.target.value;
+    this.customerSearchQuery.set(val);
+    this.selectedCustomer.set(null);
 
-    if (!guestName || !serviceId || !date || !time) {
-      this.uiService.showToast('Lütfen tüm alanları doldurun.', 'error');
+    if (val.length < 2) {
+      this.searchResults.set([]);
+      this.showCustomerDropdown.set(false);
       return;
     }
 
-    // 1. KULLANICI KONTROLÜ: providerId'nin kesinlikle string olmasını garantiye alıyoruz
-    const currentProviderId = this.currentUser()?.id;
-    if (!currentProviderId) {
+    this.isSearching.set(true);
+    this.showCustomerDropdown.set(true);
+
+    this.appointmentService.searchCustomers(val).subscribe({
+      next: (res) => {
+        this.searchResults.set(res.data);
+        this.isSearching.set(false);
+      },
+      error: () => this.isSearching.set(false),
+    });
+  }
+
+  selectCustomer(user: any) {
+    this.selectedCustomer.set({ id: user.id, name: user.full_name });
+    this.customerSearchQuery.set(user.full_name);
+    this.showCustomerDropdown.set(false);
+  }
+
+  selectAsGuest() {
+    const guestName = this.customerSearchQuery().trim();
+    if (!guestName) return;
+    this.selectedCustomer.set({ id: null, name: guestName });
+    this.showCustomerDropdown.set(false);
+  }
+
+  onInputBlur() {
+    setTimeout(() => this.showCustomerDropdown.set(false), 200);
+  }
+
+  submitManualBooking() {
+    const customer = this.selectedCustomer();
+    const { serviceId, date, time } = this.manualBookingForm;
+
+    // Eğer dropdown'dan seçim yapmadan direkt isim yazıp geçildiyse onu "Misafir" kabul et
+    let finalCustomerId = customer?.id || null;
+    let finalGuestName = customer?.id
+      ? null
+      : customer?.name || this.customerSearchQuery().trim();
+
+    if (!finalGuestName && !finalCustomerId) {
       this.uiService.showToast(
-        'Kullanıcı oturumu bulunamadı, lütfen tekrar giriş yapın.',
+        'Lütfen bir müşteri adı girin veya listeden seçin.',
         'error',
       );
       return;
     }
 
-    this.isSubmittingManual.set(true);
+    if (!serviceId || !date || !time) {
+      this.uiService.showToast(
+        'Lütfen hizmet, tarih ve saat alanlarını doldurun.',
+        'error',
+      );
+      return;
+    }
 
-    // Tarih ve saati birleştirip ISO formatına çevir
+    const currentProviderId = this.currentUser()?.id;
+    if (!currentProviderId) return;
+
+    this.isSubmittingManual.set(true);
     const slotTime = new Date(`${date}T${time}:00`).toISOString();
 
-    // 2. PAYLOAD DÜZENLEMESİ: TypeScript'in kızmaması için "as any" ile tip kısıtlamasını esnetiyoruz.
-    // Backend'de yazdığımız mantığa göre uzman randevu alırken 'customerId' bekliyorduk.
-    // Şimdilik kendi user ID'sini gönderiyoruz ki veritabanı kısıtlamalarına takılmasın.
     const payload = {
-      guestName: guestName,
-      customerId: currentProviderId, // Backend'e zorunlu alan olarak gönderiyoruz
+      userId: finalCustomerId || currentProviderId, // Kayıtlı müşteri ise ID gider, değilse null
+      guestName: finalGuestName, // Kayıtlı müşteri ise null gider, değilse isim gider
       serviceId: serviceId,
       slotTime: slotTime,
-      providerId: currentProviderId, // Kesinlikle string oldu
-    } as any; // <-- TypeScript hatasını bypass etmek için (Service interface'ini güncelleyene kadar)
+      providerId: currentProviderId,
+      status: 'booked', // Manuel alınanlar direkt onaylıdır
+    } as any;
 
     this.appointmentService.createAppointment(payload).subscribe({
       next: () => {
-        this.uiService.showToast('Manuel randevu eklendi!', 'success');
+        this.uiService.showToast('Randevu başarıyla eklendi!', 'success');
         this.closeManualBookingModal();
         this.isSubmittingManual.set(false);
-        // Listeyi yenilemek için
         this.loadProviderDashboard();
       },
       error: (err) => {
@@ -440,7 +473,6 @@ export class DashboardComponent implements OnInit {
       );
     });
   }
-  // ---------------------------------------------------------
 
   onApproveClick(id: string) {
     this.uiService.openConfirm(
@@ -491,7 +523,6 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  // Menüleri Aç/Kapat
   toggleProviderDropdown() {
     this.isProviderDropdownOpen.update((v) => !v);
     this.isServiceDropdownOpen.set(false);
@@ -507,7 +538,6 @@ export class DashboardComponent implements OnInit {
     this.isServiceDropdownOpen.set(false);
   }
 
-  // Değer Seçimi
   selectProvider(id: string) {
     this.appointmentForm.patchValue({ providerId: id });
     this.closeDropdowns();
@@ -518,7 +548,6 @@ export class DashboardComponent implements OnInit {
     this.closeDropdowns();
   }
 
-  // Arayüzde seçili olanın adını göstermek için
   getSelectedProviderName() {
     const id = this.appointmentForm.get('providerId')?.value;
     if (!id) return null;

@@ -55,6 +55,14 @@ export const routes: Routes = [
         canActivate: [roleGuard],
       },
       {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./features/analytics/analytics.component').then(
+            (m) => m.AnalyticsComponent,
+          ),
+        canActivate: [roleGuard],
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings.component').then(

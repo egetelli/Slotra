@@ -1,0 +1,140 @@
+<main class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
+    <header class="mb-10 flex items-center justify-between">
+        <div>
+            <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tighter">İstatistik Paneli</h1>
+            <p class="text-sm font-medium text-slate-500 mt-1">İşletmenizin performansını canlı verilerle takip edin.
+            </p>
+        </div>
+        <button
+            class="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 10v6m0 0l3-3m-3 3l-3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Rapor İndir
+        </button>
+    </header>
+
+    @if (isLoading()) {
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
+        @for (i of [1,2,3,4,5]; track i) {
+        <div class="h-32 bg-slate-100 animate-pulse rounded-[2rem]"></div>
+        }
+    </div>
+    } @else {
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
+
+        <article
+            class="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-[2rem] p-6 shadow-indigo-500/20 shadow-xl hover:-translate-y-1 hover:shadow-indigo-500/30 transition-all duration-300 group">
+            <div
+                class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-800 rounded-full opacity-50 group-hover:scale-110 transition-transform">
+            </div>
+
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    @if (stats().overview.revenue_growth > 0) {
+                    <div
+                        class="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                        {{ stats().overview.revenue_growth }}%
+                    </div>
+                    } @else if (stats().overview.revenue_growth < 0) { <div
+                        class="flex items-center gap-1 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                        {{ stats().overview.revenue_growth }}%
+                </div>
+                }
+            </div>
+            <div class="text-white text-3xl font-black">{{ stats().overview.realized_revenue | number:'1.2-2' }} ₺</div>
+            <div class="text-indigo-100 text-xs font-bold uppercase tracking-widest mt-1">Gerçekleşen Ciro</div>
+            </div>
+        </article>
+
+        <article
+            class="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="text-slate-900 text-2xl font-black">{{ stats().overview.expected_revenue | number:'1.2-2' }} ₺
+            </div>
+            <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Beklenen Ciro</div>
+        </article>
+
+        <article
+            class="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+            <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-5">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
+            <div class="text-slate-900 text-2xl font-black">{{ stats().overview.total_customers }}</div>
+            <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Toplam Danışan</div>
+        </article>
+
+        <article
+            class="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div class="text-slate-900 text-2xl font-black">{{ stats().overview.completed_count }}</div>
+            <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Tamamlanan İşlem</div>
+        </article>
+
+        <article
+            class="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-5">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+            <div class="text-slate-900 text-2xl font-black">{{ stats().overview.cancelled_count }}</div>
+            <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">İptal Edilen</div>
+        </article>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div
+            class="lg:col-span-2 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-8 shadow-indigo-500/5 shadow-2xl">
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="font-black text-slate-900 text-xl tracking-tight">6 Aylık Gelir Analizi</h3>
+                <select
+                    class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 outline-none">
+                    <option>Aylık</option>
+                    <option>Haftalık</option>
+                </select>
+            </div>
+            <apx-chart [series]="revenueChart.series" [chart]="revenueChart.chart" [xaxis]="revenueChart.xaxis"
+                [yaxis]="revenueChart.yaxis" [stroke]="revenueChart.stroke" [fill]="revenueChart.fill"
+                [colors]="revenueChart.colors" [dataLabels]="revenueChart.dataLabels" [grid]="revenueChart.grid">
+            </apx-chart>
+        </div>
+
+        <div
+            class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-8 shadow-indigo-500/5 shadow-2xl">
+            <h3 class="font-black text-slate-900 text-xl tracking-tight mb-8">Hizmetlerin Dağılımı</h3>
+            <apx-chart [series]="serviceChart.series" [chart]="serviceChart.chart" [labels]="serviceChart.labels"
+                [colors]="serviceChart.colors" [legend]="serviceChart.legend" [plotOptions]="serviceChart.plotOptions"
+                [dataLabels]="serviceChart.dataLabels" [stroke]="serviceChart.stroke">
+            </apx-chart>
+        </div>
+    </section>
+    }
+</main>
