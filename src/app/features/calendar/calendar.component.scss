@@ -183,6 +183,28 @@
         background-color: rgba(99, 102, 241, 1) !important;
       }
     }
+
+    /* 4. BLOKE / MOLA (Gri ve çizgili desen) */
+    &.apt-block {
+      background-color: #e2e8f0 !important; /* Açık gri arka plan */
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.6) 10px,
+        rgba(255, 255, 255, 0.6) 20px
+      ) !important;
+      border-left-color: #94a3b8 !important; /* Koyu gri sol çizgi */
+
+      /* Mola kutusunun içindeki yazıları daha koyu yapalım okunsun */
+      .custom-calendar-event {
+        color: #475569 !important;
+      }
+
+      &:hover {
+        background-color: #cbd5e1 !important;
+      }
+    }
   }
 
   /* ===============================

@@ -46,18 +46,31 @@ export interface Availability {
 
 export interface Appointment {
   id: string;
-  user_id: string | number; // Randevuyu alan müşteri
-  provider_id: string | number; // Randevunun alındığı uzman
-  service_id: string | number; // Alınan hizmet
+  user_id: string | number;
+  provider_id: string | number;
 
-  slot_time: string; // Randevu tarihi ve saati (Timestamp/ISO string)
-  end_time: string; // Randevu bitiş zamanı (Backend'de hesaplanıp gönderilebilir)
-  status: 'booked' | 'pending' | 'cancelled' | 'completed'; // Seed dosyasında 'booked' kullanılmış
-  total_price: number; // 300 vb.
+  // 🌟 GÜNCELLEME: Mola kayıtlarında servis olmadığı için artık isteğe bağlı (optional/null)
+  service_id?: string | number | null;
 
-  // NOT: UI'da listeleme yaparken backend'in JOIN yapıp göndermesini beklediğimiz UI-Friendly alanlar:
-  customer_name?: string; // User tablosundan (Müşteri adı)
-  provider_name?: string; // User tablosundan (Uzman adı)
-  service_name?: string; // Service tablosundan (Hizmet adı)
-  duration_minutes?: number; // Service tablosundan (Hizmet süresi)
+  slot_time: string;
+  end_time: string;
+
+  // 🌟 GÜNCELLEME: 'completed' kaldırıldı
+  status: 'booked' | 'pending' | 'cancelled' | 'completed';
+
+  total_price: number;
+
+  // ==========================================
+  // 🌟 YENİ: MOLA (BLOCK) SİSTEMİ ALANLARI
+  // ==========================================
+  type?: 'appointment' | 'block' | string; // Randevu mu yoksa kapatılan zaman mı?
+  guest_name?: string | null; // Örn: "[BLOKE] Özel İş" veya misafir müşteri adı
+
+  // ==========================================
+  // UI-Friendly Alanlar (Backend JOIN ile gelenler)
+  // ==========================================
+  customer_name?: string;
+  provider_name?: string;
+  service_name?: string;
+  duration_minutes?: number;
 }

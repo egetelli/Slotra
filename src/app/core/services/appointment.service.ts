@@ -72,20 +72,18 @@ export class AppointmentService {
   }
 
   // 3. Yeni Randevu Oluştur (POST /api/appointments)
-  createAppointment(appointmentData: {
-    providerId: string;
-    serviceId: string;
-    slotTime: string;
-  }): Observable<Appointment> {
+  createAppointment(appointmentData: any): Observable<Appointment> {
     return this.http
       .post<ApiResponse<Appointment>>(this.API_URL, appointmentData, {
         withCredentials: true,
       })
       .pipe(
-        map((response) => response.data), // Sadece oluşturulan randevu objesini al
+        // API'den gelen verinin yapısını garantiye alalım
+        map((response) => response?.data),
         tap((newAppointment) => {
-          // Yeni randevuyu sinyalin en başına ekle (Arayüz anında güncellenir)
-          this.addNewAppointmentLocally(newAppointment);
+          if (newAppointment) {
+            this.addNewAppointmentLocally(newAppointment);
+          }
         }),
       );
   }
@@ -156,13 +154,33 @@ export class AppointmentService {
   }
 
   addNewAppointmentLocally(newAppointment: any) {
+    // 🛡️ GÜVENLİK KONTROLÜ: Gelen veri boşsa veya id'si yoksa işlem yapma
+    if (
+      !newAppointment ||
+      (!newAppointment.id && !newAppointment.appointment?.id)
+    ) {
+      console.warn(
+        '⚠️ Geçersiz randevu verisi alındı, ekleme iptal edildi:',
+        newAppointment,
+      );
+      return;
+    }
+
+    // Soketten geliyorsa veri data.appointment içinde olabilir, onu ayıkla
+    const appointmentToTable = newAppointment.id
+      ? newAppointment
+      : newAppointment.appointment;
+
     this._appointments.update((currentList) => {
-      // Eğer bu randevu zaten listede varsa (F5 falan atıldıysa) çiftlememek için kontrol et
-      const exists = currentList.find((apt) => apt.id === newAppointment.id);
-      if (exists) return currentList;
+      // Eğer liste boşsa veya undefined ise güvenli başla
+      const list = currentList || [];
+
+      // Eğer bu randevu zaten listede varsa çiftlememek için kontrol et
+      const exists = list.find((apt) => apt?.id === appointmentToTable.id);
+      if (exists) return list;
 
       // Yoksa listenin en başına ekle
-      return [newAppointment, ...currentList];
+      return [appointmentToTable, ...list];
     });
   }
 

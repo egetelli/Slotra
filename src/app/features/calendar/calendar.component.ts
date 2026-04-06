@@ -72,7 +72,8 @@ export class CalendarComponent implements OnInit {
       id: apt.id,
       start: apt.slot_time,
       end: apt.end_time,
-      backgroundColor: this.getColorByStatus(apt.status),
+      backgroundColor:
+        apt.type === 'block' ? '#e2e8f0' : this.getColorByStatus(apt.status),
       borderColor: 'transparent',
       extendedProps: { ...apt },
     }));
@@ -114,17 +115,35 @@ export class CalendarComponent implements OnInit {
     // Etkinlik içeriği (Aynen korundu)
     eventContent: (arg) => {
       const apt = arg.event.extendedProps as any;
+
+      // EĞER MOLA İSE:
+      if (apt.type === 'block') {
+        return {
+          html: `
+            <div class="custom-calendar-event">
+              <div class="event-title">🚫 ${apt.guest_name || apt.guestName || 'Kapalı Zaman'}</div>
+            </div>
+          `,
+        };
+      }
+
+      // EĞER NORMAL RANDEVU İSE:
       return {
         html: `
           <div class="custom-calendar-event">
-            <div class="event-title">${apt.customer_name}</div>
-            <div class="event-subtitle">${apt.service_name}</div>
+            <div class="event-title">${apt.customer_name || apt.guest_name || 'Bilinmiyor'}</div>
+            <div class="event-subtitle">${apt.service_name || ''}</div>
           </div>
         `,
       };
     },
+
     eventClassNames: (arg) => {
       const status = arg.event.extendedProps['status'];
+      const type = arg.event.extendedProps['type']; // YENİ EKLENDİ
+
+      if (type === 'block') return ['apt-block']; // Eğer molaysa direkt gri stili uygula
+
       if (status === 'booked') return ['apt-booked']; // Onaylananlar
       if (status === 'pending') return ['apt-pending']; // Bekleyenler
       if (status === 'cancelled') return ['apt-cancelled']; // İptal edilenler
@@ -180,6 +199,13 @@ export class CalendarComponent implements OnInit {
 
   handleEventClick(clickInfo: any) {
     const apt = clickInfo.event.extendedProps;
+
+    // Eğer bu bir mola/blok ise şimdilik detaya gitme (Tıklamayı yoksay)
+    if (apt.type === 'block') {
+      // İleride buraya "Molayı Silmek ister misiniz?" onayı ekleyebiliriz.
+      return;
+    }
+
     this.uiService.openDetail(apt);
   }
 

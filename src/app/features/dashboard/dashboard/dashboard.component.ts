@@ -40,6 +40,14 @@ export class DashboardComponent implements OnInit {
   private serviceService = inject(ServiceService);
   private settingsService = inject(SettingsService);
   private socketService = inject(SocketService);
+  isBlockModalOpen = signal(false);
+  isSubmittingBlock = signal(false);
+  blockForm = {
+    reason: 'Mola',
+    date: '',
+    startTime: '',
+    endTime: '',
+  };
 
   isLoading = signal<boolean>(true);
 
@@ -84,9 +92,12 @@ export class DashboardComponent implements OnInit {
 
   // --- HESAPLANMIŞ VERİLER (COMPUTED) ---
   pendingAppointments = computed(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return this.appointmentService
       .appointments()
-      .filter((a) => a.status === 'pending')
+      .filter((a) => a.status === 'pending' && new Date(a.slot_time) >= today)
       .sort(
         (a, b) =>
           new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
@@ -99,7 +110,7 @@ export class DashboardComponent implements OnInit {
       .appointments()
       .filter(
         (apt) =>
-          apt.status === 'pending' ||
+          (apt.status === 'pending' && new Date(apt.slot_time) >= now) ||
           (apt.status === 'booked' && new Date(apt.slot_time) > now),
       ).length;
   });
@@ -169,12 +180,9 @@ export class DashboardComponent implements OnInit {
     const todayApts = allApts.filter((a) => a.slot_time.startsWith(todayStr));
 
     const todayRealizedEarnings = todayApts
-      .filter(
-        (a) =>
-          a.status === 'completed' ||
-          (a.status === 'booked' && new Date(a.slot_time) < now),
-      )
+      .filter((a) => a.status === 'booked' && new Date(a.slot_time) < now)
       .reduce((sum, a) => sum + Number(a.total_price), 0);
+
     const todayExpectedEarnings = todayApts
       .filter((a) => a.status === 'booked' && new Date(a.slot_time) >= now)
       .reduce((sum, a) => sum + Number(a.total_price), 0);
@@ -184,9 +192,7 @@ export class DashboardComponent implements OnInit {
       todayExpectedEarnings,
       totalToday: todayApts.length,
       completedToday: todayApts.filter(
-        (a) =>
-          a.status === 'completed' ||
-          (a.status === 'booked' && new Date(a.slot_time) < now),
+        (a) => a.status === 'booked' && new Date(a.slot_time) < now,
       ).length,
       nextCustomer: allApts
         .filter((a) => new Date(a.slot_time) > now && a.status === 'booked')
@@ -202,7 +208,9 @@ export class DashboardComponent implements OnInit {
           a.status !== 'cancelled'
         );
       }).length,
-      pendingCount: allApts.filter((a) => a.status === 'pending').length,
+      pendingCount: allApts.filter(
+        (a) => a.status === 'pending' && new Date(a.slot_time) >= now,
+      ).length,
     };
   });
 
@@ -560,5 +568,83 @@ export class DashboardComponent implements OnInit {
     if (!id) return null;
     const srv = this.services().find((s) => s.id === id);
     return srv ? `${srv.name} - ${srv.base_price}₺` : null;
+  }
+
+  openBlockModal() {
+    const today = new Date().toISOString().split('T')[0];
+    this.blockForm = {
+      reason: 'Mola',
+      date: today,
+      startTime: '12:00',
+      endTime: '13:00',
+    };
+    this.isBlockModalOpen.set(true);
+  }
+
+  closeBlockModal() {
+    this.isBlockModalOpen.set(false);
+  }
+
+  submitBlockTime() {
+    // 2. Eğer halihazırda bir istek atılıyorsa, fonksiyona girmeyi direkt reddet! (Çift tık koruması)
+    if (this.isSubmittingBlock()) return;
+
+    const currentProviderId = this.currentUser()?.id;
+
+    if (!currentProviderId) {
+      this.uiService.showToast(
+        'Kullanıcı bilgisi bulunamadı. Lütfen sayfayı yenileyin.',
+        'error',
+      );
+      return;
+    }
+
+    if (
+      !this.blockForm.date ||
+      !this.blockForm.startTime ||
+      !this.blockForm.endTime
+    ) {
+      this.uiService.showToast(
+        'Lütfen tarih ve saat aralıklarını eksiksiz girin.',
+        'error',
+      );
+      return;
+    }
+
+    const slotTime = new Date(
+      `${this.blockForm.date}T${this.blockForm.startTime}:00`,
+    ).toISOString();
+    const endTime = new Date(
+      `${this.blockForm.date}T${this.blockForm.endTime}:00`,
+    ).toISOString();
+
+    const payload = {
+      type: 'block',
+      providerId: currentProviderId,
+      guestName: `[BLOKE] ${this.blockForm.reason}`,
+      slotTime: slotTime,
+      endTime: endTime,
+      status: 'booked',
+    };
+
+    // 3. İstek başlamadan hemen önce butonu kilitle
+    this.isSubmittingBlock.set(true);
+
+    this.appointmentService.createAppointment(payload).subscribe({
+      next: () => {
+        this.uiService.showToast('Zaman başarıyla kilitlendi.', 'success');
+        this.closeBlockModal();
+        this.isSubmittingBlock.set(false); // İşlem başarılı, kilidi aç
+        //this.loadDashboardData();
+      },
+      error: (err) => {
+        console.error('GERÇEK JS HATASI:', err); // Bunu ekle ve F12 Konsoluna bak
+        this.uiService.showToast(
+          err.error?.message || 'Zaman kapatılırken bir hata oluştu.',
+          'error',
+        );
+        this.isSubmittingBlock.set(false);
+      },
+    });
   }
 }

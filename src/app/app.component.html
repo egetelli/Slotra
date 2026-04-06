@@ -106,20 +106,60 @@
 
         <header
             class="hidden lg:flex h-20 bg-white/40 backdrop-blur-xl border-b border-white/60 items-center justify-between px-8">
-            <div class="relative group w-96">
-                <input type="text" placeholder="Arama..."
-                    class="block w-full pl-11 pr-4 py-2.5 bg-white/60 border border-slate-200/60 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm" />
+
+            <div class="flex flex-col animate-fade-in-up">
+                <h1 class="text-xl font-heading font-black text-slate-800 tracking-tight">
+                    {{ greeting() }}, <span class="text-indigo-600">{{ (authService.user()?.full_name || '').split('
+                        ')[0] }}</span> 👋
+                </h1>
+                <p class="text-xs font-medium text-slate-500 mt-0.5">
+                    Bugün harika bir gün, planlarına göz at!
+                </p>
             </div>
 
-            <div class="flex items-center gap-3 cursor-pointer group">
-                <div class="text-right">
-                    <p class="text-[14px] font-semibold text-slate-700 group-hover:text-indigo-600">{{
-                        authService.user()?.full_name }}</p>
-                    <p class="text-[12px] text-slate-400 capitalize">{{ authService.user()?.role }}</p>
-                </div>
+            <div class="flex items-center gap-5">
+
                 <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-cyan-50 flex items-center justify-center border border-white shadow-sm">
-                    <span class="font-bold text-indigo-600">{{ userInitials() }}</span>
+                    class="flex items-center gap-2.5 px-4 py-2 bg-white/60 border border-slate-100 rounded-2xl shadow-sm text-sm">
+                    <div class="flex items-center gap-1.5 text-slate-500 font-medium border-r border-slate-200 pr-3">
+                        <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>{{ currentTime() | date:'d MMMM EEEE' }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 font-bold text-slate-700">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ currentTime() | date:'HH:mm' }}</span>
+                    </div>
+                </div>
+
+                <button
+                    class="relative p-2.5 text-slate-400 hover:text-indigo-600 transition-colors rounded-xl hover:bg-white/60 active:scale-95">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border border-white"></span>
+                </button>
+
+                <div class="w-px h-8 bg-slate-200/60"></div>
+
+                <div class="flex items-center gap-3 cursor-pointer group">
+                    <div class="text-right">
+                        <p
+                            class="text-[14px] font-semibold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                            {{ authService.user()?.full_name }}
+                        </p>
+                        <p class="text-[12px] text-slate-400 capitalize">{{ authService.user()?.role }}</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-cyan-50 flex items-center justify-center border border-white shadow-sm group-hover:shadow-md transition-all group-active:scale-95">
+                        <span class="font-bold text-indigo-600">{{ userInitials() }}</span>
+                    </div>
                 </div>
             </div>
         </header>
