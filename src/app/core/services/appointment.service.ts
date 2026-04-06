@@ -203,4 +203,13 @@ export class AppointmentService {
       `${this.API_URL}/search-customers?q=${query}`,
     );
   }
+
+  // Müşteriler için kolektif müsaitlik verisini çeker
+  getCollectiveAvailability(date: string) {
+    return this.http
+      .get<
+        ApiResponse<any[]>
+      >(`${this.API_URL}/collective-availability?date=${date}`, { withCredentials: true })
+      .pipe(map((res) => res.data));
+  }
 }

@@ -55,6 +55,14 @@ export const routes: Routes = [
         canActivate: [roleGuard],
       },
       {
+        path: 'availability',
+        loadComponent: () =>
+          import('./features/availability/availability.component').then(
+            (m) => m.AvailabilityComponent,
+          ),
+        canActivate: [],
+      },
+      {
         path: 'analytics',
         loadComponent: () =>
           import('./features/analytics/analytics.component').then(

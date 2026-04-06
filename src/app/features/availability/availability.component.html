@@ -1,0 +1,91 @@
+<div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+        <div>
+            <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tight">
+                Ekip Müsaitliği
+            </h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-widest">
+                    Sana en uygun uzmanı ve saati seç
+                </p>
+            </div>
+        </div>
+
+        <div
+            class="bg-white/80 backdrop-blur-xl border border-slate-200 p-2 rounded-2xl shadow-sm flex items-center gap-3">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider pl-2">Tarih:</label>
+            <input type="date" [ngModel]="selectedDate()" (ngModelChange)="onDateChange($event)"
+                class="bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-bold cursor-pointer">
+        </div>
+    </div>
+
+    <div
+        class="flex-1 min-w-0 bg-white/50 backdrop-blur-xl border border-white/90 rounded-[3rem] shadow-inner p-4 lg:p-8 overflow-y-auto custom-scrollbar flex flex-col">
+
+        @if (isLoading()) {
+        <div class="flex justify-center items-center py-20 flex-1">
+            <span class="flex h-6 w-6 rounded-full bg-indigo-500 animate-ping"></span>
+        </div>
+        } @else {
+
+        <div class="space-y-6">
+            @for (provider of providersData(); track provider.provider_id) {
+            <div
+                class="bg-white/80 backdrop-blur-md border border-slate-100 rounded-[2rem] shadow-sm p-6 lg:p-8 transition-all hover:shadow-md hover:border-indigo-100 flex flex-col lg:flex-row gap-8 items-start lg:items-center">
+
+                <div class="flex items-center gap-4 lg:w-1/4 shrink-0">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-cyan-50 flex items-center justify-center border border-white shadow-inner">
+                        <span class="font-black text-2xl text-indigo-600">{{ provider.provider_name.charAt(0) }}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-heading text-xl font-bold text-slate-900">{{ provider.provider_name }}</h3>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">Uzman</p>
+                    </div>
+                </div>
+
+                <div class="w-full h-px bg-slate-100 lg:hidden"></div>
+
+                <div class="flex-1 w-full">
+                    <div class="flex flex-wrap gap-3">
+                        @for (slot of provider.slots; track slot.time) {
+                        @if (slot.isAvailable) {
+                        <button (click)="bookSlot(provider.provider_id, provider.provider_name, slot.fullDateTime)"
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all duration-300 active:scale-95">
+                            {{ slot.time }}
+                        </button>
+                        } @else {
+                        <div
+                            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-50 text-slate-400 border border-slate-200/60 opacity-60 cursor-not-allowed flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                            {{ slot.time }}
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (providersData().length === 0) {
+            <div class="text-center py-20 flex-1">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700 mb-1">Müsait Uzman Yok</h3>
+                <p class="text-slate-500 font-medium">Bu tarihte uygun çalışan bulunmuyor, lütfen yukarıdan başka bir
+                    tarih seçin.</p>
+            </div>
+            }
+        </div>
+        }
+    </div>
+</div>
