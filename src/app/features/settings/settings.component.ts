@@ -23,6 +23,8 @@ export class SettingsComponent implements OnInit {
   activeTab = 'schedule';
   isLoading = signal(false);
 
+  isSavingServices = signal<boolean>(false);
+
   // Gün isimleri eşleştirme tablosu (0: Pazar, 1: Pazartesi...)
   private dayNames = [
     'pazar',

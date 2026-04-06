@@ -9,7 +9,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
         </button>
-        <img src="/assets/logo.jpg" class="h-10 w-auto object-contain" alt="Slotra">
+        <img src="/assets/logo.jpg" class="h-10 w-auto object-contain mix-blend-multiply" alt="Slotra">
         <div
             class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 shadow-sm">
             {{ userInitials() }}
@@ -20,12 +20,9 @@
         <div
             class="blob absolute -top-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-indigo-400/20 blur-[120px] animate-pulse">
         </div>
-
         <div class="blob-2 absolute top-[20%] -right-[10%] w-[45vw] h-[45vw] rounded-full bg-cyan-300/15 blur-[100px]">
         </div>
-
         <div class="absolute bottom-[-10%] left-[20%] w-[35vw] h-[35vw] rounded-full bg-rose-300/10 blur-[110px]"></div>
-
         <div
             class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] mix-blend-overlay">
         </div>
@@ -37,12 +34,39 @@
     }
 
     <aside [class.translate-x-0]="isSidebarOpen()" [class.-translate-x-full]="!isSidebarOpen()"
-        class="fixed lg:static inset-y-0 left-0 z-[50] w-64 flex flex-col bg-white/60 backdrop-blur-2xl border-r border-white/80 shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 lg:translate-x-0">
+        class="fixed lg:static inset-y-0 left-0 z-[50] w-64 flex flex-col bg-white/40 backdrop-blur-2xl border-r border-white/60 shadow-2xl lg:shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 lg:translate-x-0">
 
-        <div class="h-24 flex items-center justify-between px-6 shrink-0 border-b border-white/40 lg:border-none">
-            <img src="/assets/logo.jpg" alt="Slotra Logo" routerLink="/dashboard" (click)="closeSidebar()"
-                class="h-20 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all" />
+        <div class="h-24 flex items-center justify-between lg:justify-center px-6 shrink-0">
 
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 100" routerLink="/dashboard"
+                (click)="closeSidebar()"
+                class="h-20 w-auto transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer outline-none focus:outline-none focus-visible:outline-none select-none ring-0 focus:ring-0"
+                style="-webkit-tap-highlight-color: transparent; outline: none !important;">
+
+                <defs>
+                    <linearGradient id="slotraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#4f46e5" />
+                        <stop offset="50%" stop-color="#3b82f6" />
+                        <stop offset="100%" stop-color="#06b6d4" />
+                    </linearGradient>
+                    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#0f172a" />
+                        <stop offset="100%" stop-color="#334155" />
+                    </linearGradient>
+                </defs>
+                <g transform="translate(10, 5)">
+                    <path d="M 45 15 A 22 22 0 0 0 25 37 C 25 57 65 47 65 67 A 22 22 0 0 1 45 89" fill="none"
+                        stroke="url(#slotraGrad)" stroke-width="16" stroke-linecap="round" opacity="0.3"
+                        transform="translate(0, 4) scale(1)" />
+                    <path d="M 45 15 A 22 22 0 0 0 25 37 C 25 57 65 47 65 67 A 22 22 0 0 1 45 89" fill="none"
+                        stroke="url(#slotraGrad)" stroke-width="14" stroke-linecap="round" />
+                    <circle cx="75" cy="20" r="8" fill="#06b6d4" />
+                </g>
+                <text x="110" y="60" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="900"
+                    fill="url(#textGrad)" letter-spacing="-1.5">Slotra</text>
+                <text x="114" y="85" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700"
+                    fill="#64748b" letter-spacing="2">SCHEDULING, SIMPLIFIED</text>
+            </svg>
             <button (click)="closeSidebar()"
                 class="lg:hidden p-2 text-slate-400 hover:text-slate-600 transition-colors">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -51,7 +75,7 @@
             </button>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        <nav class="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
             @for (item of menuItems; track item.name) {
             @if (item.roles.includes(authService.user()?.role ?? '')) {
             <a [routerLink]="item.path" routerLinkActive="active" #rla="routerLinkActive" (click)="closeSidebar()"
@@ -83,21 +107,19 @@
             }
         </nav>
 
-        <div class="p-4 mt-auto border-t border-slate-100/50 bg-white/20 backdrop-blur-md">
+        <div class="p-4 mt-auto shrink-0 mb-2">
             <button (click)="logout(); closeSidebar()"
-                class="group relative w-full flex items-center justify-center gap-3 px-4 py-3.5 bg-white/80 hover:bg-rose-600 border border-slate-200/60 hover:border-rose-600 rounded-[1.25rem] text-slate-600 hover:text-white transition-all duration-300 font-bold text-[14px] shadow-sm hover:shadow-lg hover:shadow-rose-500/30 active:scale-[0.97]">
+                class="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 group relative overflow-hidden text-slate-500 hover:text-rose-600 hover:bg-rose-50/80 border border-transparent hover:border-rose-100">
 
-                <svg class="w-5 h-5 text-slate-400 group-hover:text-white transition-colors duration-300" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                <svg class="w-6 h-6 relative z-10 transition-transform duration-300 group-hover:-translate-x-1"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
 
-                <span class="tracking-wide">Güvenli Çıkış</span>
-
-                <div
-                    class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none">
-                </div>
+                <span class="text-[15px] relative z-10 tracking-wide font-heading font-semibold">
+                    Güvenli Çıkış
+                </span>
             </button>
         </div>
     </aside>

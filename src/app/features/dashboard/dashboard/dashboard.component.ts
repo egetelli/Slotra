@@ -92,12 +92,15 @@ export class DashboardComponent implements OnInit {
 
   // --- HESAPLANMIŞ VERİLER (COMPUTED) ---
   pendingAppointments = computed(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date(); // Şu anki tarih ve saat
 
     return this.appointmentService
       .appointments()
-      .filter((a) => a.status === 'pending' && new Date(a.slot_time) >= today)
+      .filter((a) => {
+        const appointmentDate = new Date(a.slot_time);
+        // Durumu 'pending' olan VE saati şu andan sonra olanlar
+        return a.status === 'pending' && appointmentDate >= now;
+      })
       .sort(
         (a, b) =>
           new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
@@ -195,7 +198,7 @@ export class DashboardComponent implements OnInit {
         (a) => a.status === 'booked' && new Date(a.slot_time) < now,
       ).length,
       nextCustomer: allApts
-        .filter((a) => new Date(a.slot_time) > now && a.status === 'booked')
+        .filter((a) => new Date(a.slot_time) > now && a.status === 'booked' && a.type === 'appointment')
         .sort(
           (a, b) =>
             new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),

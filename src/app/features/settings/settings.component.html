@@ -132,14 +132,15 @@
             }
 
             @if (activeTab === 'services') {
-            <div class="max-w-4xl animate-fade-in-up">
-                <div class="flex justify-between items-end mb-10">
+            <div class="max-w-4xl animate-fade-in-up flex flex-col h-full min-h-[500px]">
+
+                <div class="flex justify-between items-end mb-6 shrink-0">
                     <div>
                         <h2 class="text-2xl font-black text-slate-900 leading-tight">Hizmetler</h2>
                         <p class="text-slate-500 mt-1 font-bold text-sm">Menünüzü ve fiyatlandırmanızı yönetin.</p>
                     </div>
                     <button (click)="addNewService()"
-                        class="bg-indigo-600 text-white px-6 py-3 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 font-black text-sm">
+                        class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 flex items-center gap-2 font-black text-sm">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
                         </svg>
@@ -147,46 +148,74 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 overflow-y-auto custom-scrollbar flex-1 pr-2 content-start">
                     @for (service of services(); track $index) {
                     <div
-                        class="p-6 bg-white border border-slate-50 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 group relative overflow-hidden">
+                        class="p-5 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden h-fit">
+
                         <div
-                            class="absolute top-0 left-0 w-2 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
                         </div>
 
                         <button (click)="deleteService($index)"
-                            class="absolute top-6 right-6 text-slate-300 hover:text-rose-500 transition-colors">
+                            class="absolute top-5 right-5 text-slate-300 hover:text-rose-500 transition-colors">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
 
-                        <div class="space-y-6">
+                        <div class="space-y-4">
                             <input [(ngModel)]="service.name" placeholder="Hizmet Adı"
-                                class="bg-transparent border-none p-0 font-black text-slate-800 text-xl w-full focus:ring-0 placeholder:text-slate-300">
+                                class="bg-transparent border-none p-0 font-black text-slate-800 text-lg w-full pr-8 focus:ring-0 placeholder:text-slate-300">
 
                             <div class="flex gap-4">
                                 <div class="flex-1">
                                     <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Süre
-                                        (Dakika)</label>
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Süre
+                                        (Dk)</label>
                                     <input type="number" [(ngModel)]="service.duration"
-                                        class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-black text-slate-700 outline-none">
+                                        class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-black text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20">
                                 </div>
                                 <div class="flex-1">
                                     <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Fiyat
+                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Fiyat
                                         (₺)</label>
                                     <input type="number" [(ngModel)]="service.base_price"
-                                        class="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-sm font-black text-slate-700 outline-none">
+                                        class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-black text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20">
                                 </div>
                             </div>
                         </div>
                     </div>
                     }
                 </div>
+
+                <div class="pt-4 border-t border-slate-100 flex justify-end shrink-0">
+                    <button (click)="saveServices()" [disabled]="isLoading()"
+                        class="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-slate-400 text-white font-black rounded-2xl transition-all shadow-lg shadow-emerald-200 active:scale-95 flex items-center justify-center gap-2 group">
+
+                        <svg *ngIf="!isLoading()" class="w-5 h-5 transition-transform group-hover:-translate-y-0.5"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+
+                        <svg *ngIf="isLoading()" class="animate-spin h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+
+                        <span class="tracking-tight text-sm">
+                            {{ isLoading() ? 'Kaydediliyor...' : 'Hizmetleri Kaydet' }}
+                        </span>
+                    </button>
+                </div>
+
             </div>
             }
 
