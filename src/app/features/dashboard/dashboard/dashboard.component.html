@@ -783,25 +783,181 @@
     }
 
     @case ('admin') {
-    <div class="h-full flex items-center justify-center">
-        <div
-            class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl p-16 text-center shadow-sm hover:shadow-2xl hover:border-indigo-200/60 transition-all duration-300 max-w-4xl mx-auto w-full">
-            <div class="relative w-32 h-32 mx-auto mb-8">
-                <div class="absolute inset-0 bg-indigo-500/20 rounded-full blur-2xl animate-pulse"></div>
-                <div
-                    class="relative w-full h-full bg-gradient-to-br from-indigo-50 to-white text-indigo-600 rounded-3xl flex items-center justify-center shadow-xl border border-white rotate-3 hover:rotate-0 transition-transform duration-300">
-                    <svg class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+    <div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
+        <header class="mb-10 flex items-center justify-between">
+            <div>
+                <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tighter">Sistem Yönetim Paneli</h1>
+                <div class="flex items-center gap-2">
+                    <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <p class="text-sm font-medium text-slate-500">
+                        Platformun genel durumunu, kullanıcı istatistiklerini ve sistem yükünü izleyin.
+                    </p>
                 </div>
             </div>
-            <h2 class="text-4xl font-heading font-black text-slate-900 mb-4 tracking-tight">Sistem Yönetim Paneli</h2>
-            <p class="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed font-medium">
-                Sistem istatistikleri, kullanıcı yönetimi ve genel uygulama ayarları yakında bu ekrana eklenecektir.
-                Hazırlıklar devam ediyor.
-            </p>
+            <button
+                class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 border border-indigo-500 rounded-2xl text-sm font-bold text-white hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Sistem Ayarları
+            </button>
+        </header>
+
+        @if (isLoading()) {
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-10">
+            @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="h-32 bg-slate-100 animate-pulse rounded-[2rem]"></div>
+            }
         </div>
+        } @else {
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-10">
+
+            <article
+                class="relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-950 rounded-[2rem] p-6 shadow-slate-900/20 shadow-xl hover:-translate-y-1 hover:shadow-slate-900/30 transition-all duration-300 group">
+                <div
+                    class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500 rounded-full opacity-30 group-hover:scale-110 blur-xl transition-transform">
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-5">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center border border-white/20">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        @if (adminStats().growth > 0) {
+                        <div
+                            class="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
+                            {{ adminStats().growth }}%
+                        </div>
+                        }
+                    </div>
+                    <div class="text-white text-3xl font-black">{{ adminStats().total_users | number }}</div>
+                    <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Toplam Kullanıcı</div>
+                </div>
+            </article>
+
+            <article
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+                <div
+                    class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-5 border border-indigo-100">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="text-slate-900 text-2xl font-black">{{ adminStats().total_providers | number }}</div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Aktif Çalışan</div>
+            </article>
+
+            <article
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+                <div
+                    class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-5 border border-cyan-100">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div class="text-slate-900 text-2xl font-black">{{ adminStats().total_clients | number }}</div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Toplam Müşteri</div>
+            </article>
+
+            <article
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-6 shadow-sm hover:border-amber-100 hover:shadow-lg transition-all">
+                <div
+                    class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-5 border border-amber-100">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="text-slate-900 text-2xl font-black">{{ adminStats().total_revenue | number:'1.2-2' }} ₺
+                </div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Toplam Ciro</div>
+            </article>
+
+            <article
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+                <div
+                    class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-5 border border-emerald-100">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="text-slate-900 text-2xl font-black">{{ adminStats().weekly_appointments | number }}</div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Haftalık Randevu</div>
+            </article>
+
+            <article
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2rem] p-6 shadow-sm hover:border-indigo-100 hover:shadow-lg transition-all">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-5 border"
+                    [ngClass]="adminStats().system_health === 'Kritik' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="text-slate-900 text-2xl font-black"
+                    [ngClass]="adminStats().system_health === 'Kritik' ? 'text-rose-600' : 'text-slate-900'">
+                    {{ adminStats().system_health }}
+                </div>
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Sistem Durumu</div>
+            </article>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+            <div
+                class="lg:col-span-2 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-8 shadow-indigo-500/5 shadow-2xl flex flex-col">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="font-black text-slate-900 text-xl tracking-tight">Haftalık Platform Trafiği</h3>
+                        <p class="text-xs text-slate-500 font-medium mt-1">Sistemdeki randevu yoğunluğunu gösterir</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Gerçekleşen
+                        </span>
+                        <span class="flex items-center gap-1.5 text-xs font-bold text-slate-600 ml-3">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> İptaller
+                        </span>
+                    </div>
+                </div>
+                <div class="flex-1 min-h-[300px]">
+                    <apx-chart [series]="adminTrafficChart().series" [chart]="adminTrafficChart().chart"
+                        [xaxis]="adminTrafficChart().xaxis" [yaxis]="adminTrafficChart().yaxis"
+                        [stroke]="adminTrafficChart().stroke" [fill]="adminTrafficChart().fill"
+                        [colors]="adminTrafficChart().colors" [dataLabels]="adminTrafficChart().dataLabels"
+                        [grid]="adminTrafficChart().grid">
+                    </apx-chart>
+                </div>
+            </div>
+
+            <div
+                class="bg-white/80 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-8 shadow-indigo-500/5 shadow-2xl flex flex-col">
+                <h3 class="font-black text-slate-900 text-xl tracking-tight mb-2">Rol Dağılımı</h3>
+                <p class="text-xs text-slate-500 font-medium mb-8">Sisteme kayıtlı kullanıcı tipleri</p>
+
+                <div class="flex-1 flex items-center justify-center min-h-[300px]">
+                    <apx-chart [series]="adminRoleChart().series" [chart]="adminRoleChart().chart"
+                        [labels]="adminRoleChart().labels" [colors]="adminRoleChart().colors"
+                        [legend]="adminRoleChart().legend" [plotOptions]="adminRoleChart().plotOptions"
+                        [dataLabels]="adminRoleChart().dataLabels" [stroke]="adminRoleChart().stroke">
+                    </apx-chart>
+                </div>
+            </div>
+        </section>
+        }
     </div>
     }
 

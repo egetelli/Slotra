@@ -78,6 +78,13 @@ export const routes: Routes = [
           ),
         canActivate: [roleGuard],
       },
+      {
+        path: 'adminsettings',
+        loadComponent: () =>
+          import('./features/adminsettings/adminsettings.component').then(
+            (m) => m.AdminsettingsComponent,
+          ),
+      },
     ],
   },
 

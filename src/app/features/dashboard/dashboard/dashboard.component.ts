@@ -23,11 +23,20 @@ import { Provider } from '../../../core/models/provider.model';
 import { ServiceItem } from '../../../core/models/service-item.model';
 import { SocketService } from '../../../core/services/socket.service';
 import { UiService } from '../../../core/services/ui.service';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import { AdminService } from '../../../core/services/admin.service';
+import { AdminDashboardData } from '../../../core/models/admin-dashboard.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    FormsModule,
+    NgApexchartsModule,
+  ],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
@@ -40,6 +49,7 @@ export class DashboardComponent implements OnInit {
   private serviceService = inject(ServiceService);
   private settingsService = inject(SettingsService);
   private socketService = inject(SocketService);
+  private adminService = inject(AdminService);
   isBlockModalOpen = signal(false);
   isSubmittingBlock = signal(false);
   blockForm = {
@@ -198,7 +208,12 @@ export class DashboardComponent implements OnInit {
         (a) => a.status === 'booked' && new Date(a.slot_time) < now,
       ).length,
       nextCustomer: allApts
-        .filter((a) => new Date(a.slot_time) > now && a.status === 'booked' && a.type === 'appointment')
+        .filter(
+          (a) =>
+            new Date(a.slot_time) > now &&
+            a.status === 'booked' &&
+            a.type === 'appointment',
+        )
         .sort(
           (a, b) =>
             new Date(a.slot_time).getTime() - new Date(b.slot_time).getTime(),
@@ -247,6 +262,97 @@ export class DashboardComponent implements OnInit {
     });
   });
 
+  //ADMIN DASHBOARD İÇİN EKLENENLER
+  // API'den gelecek ham veriyi tutan sinyal
+  adminData = signal<AdminDashboardData | null>(null);
+  // HTML tarafında kullanacağımız özet istatistikler
+  adminStats = computed(() => {
+    const data = this.adminData();
+    if (!data || !data.stats) {
+      return {
+        total_users: 0,
+        growth: 0,
+        total_providers: 0,
+        total_clients: 0,
+        weekly_appointments: 0,
+        total_revenue: 0, // <-- Bunu ekledik
+        system_health: 'Yükleniyor...',
+      };
+    }
+    return data.stats;
+  });
+
+  // Trafik Grafiği (Haftalık Randevular)
+  adminTrafficChart = computed(() => {
+    const data = this.adminData();
+    const seriesData = data?.trafficChart?.series || [];
+
+    return {
+      series: seriesData,
+      // HATA ÇÖZÜMÜ: as const eklendi
+      chart: {
+        type: 'area' as const,
+        height: 350,
+        toolbar: { show: false },
+        fontFamily: 'inherit',
+      },
+      colors: ['#6366f1', '#cbd5e1'],
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shadeIntensity: 1,
+          opacityFrom: 0.4,
+          opacityTo: 0.05,
+          stops: [0, 90, 100],
+        },
+      },
+      dataLabels: { enabled: false },
+      // HATA ÇÖZÜMÜ: as const eklendi
+      stroke: { curve: 'smooth' as const, width: 3 },
+      xaxis: {
+        categories: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+        axisBorder: { show: false },
+        axisTicks: { show: false },
+      },
+      yaxis: { labels: { style: { colors: '#94a3b8' } } },
+      grid: {
+        borderColor: '#f1f5f9',
+        strokeDashArray: 4,
+        yaxis: { lines: { show: true } },
+      },
+    };
+  });
+
+  // Rol Dağılımı Grafiği
+  adminRoleChart = computed(() => {
+    const data = this.adminData();
+    const seriesData = data?.roleChart?.series || [1, 1];
+    const labelsData = data?.roleChart?.labels || ['Bilinmiyor', 'Bilinmiyor'];
+
+    return {
+      series: seriesData,
+      labels: labelsData,
+      // HATA ÇÖZÜMÜ: as const eklendi
+      chart: { type: 'donut' as const, height: 320, fontFamily: 'inherit' },
+      colors: ['#6366f1', '#06b6d4'],
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '75%',
+            labels: {
+              show: true,
+              name: { show: true },
+              value: { show: true, fontSize: '24px', fontWeight: 900 },
+            },
+          },
+        },
+      },
+      dataLabels: { enabled: false },
+      stroke: { width: 0 },
+      legend: { show: false },
+    };
+  });
+
   constructor() {
     this.initRoleEffect();
   }
@@ -268,6 +374,7 @@ export class DashboardComponent implements OnInit {
         'cancelled',
       );
     });
+    this.fetchAdminDashboard();
   }
 
   private initRoleEffect() {
@@ -282,6 +389,21 @@ export class DashboardComponent implements OnInit {
       } else if (user.role === 'admin') {
         this.loadAdminDashboard();
       }
+    });
+  }
+
+  fetchAdminDashboard() {
+    this.isLoading.set(true);
+    this.adminService.getDashboardSummary().subscribe({
+      next: (response) => {
+        this.adminData.set(response);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Dashboard verileri çekilemedi:', err);
+        this.isLoading.set(false);
+        // İsteğe bağlı: Burada bir toast mesajı gösterebilirsin
+      },
     });
   }
 
