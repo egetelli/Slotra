@@ -48,6 +48,10 @@ export class SettingsService {
       .pipe(map((response) => response.data));
   }
 
+  deleteService(serviceId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/services/${serviceId}`);
+  }
+
   // Profil bilgilerini güncelle
   updateProfile(profile: any): Observable<any> {
     return this.http

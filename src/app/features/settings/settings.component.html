@@ -132,7 +132,7 @@
             }
 
             @if (activeTab === 'services') {
-            <div class="max-w-4xl animate-fade-in-up flex flex-col h-full min-h-[500px]">
+            <div class="w-full animate-fade-in-up flex flex-col h-full min-h-[500px]">
 
                 <div class="flex justify-between items-end mb-6 shrink-0">
                     <div>
@@ -149,41 +149,43 @@
                 </div>
 
                 <div
-                    class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 overflow-y-auto custom-scrollbar flex-1 pr-2 content-start">
+                    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 mb-6 overflow-y-auto custom-scrollbar flex-1 pr-4 content-start auto-rows-max">
                     @for (service of services(); track $index) {
                     <div
-                        class="p-5 bg-white border border-slate-100 rounded-[1.5rem] shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden h-fit">
+                        class="p-6 bg-white border border-slate-100 rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 group relative overflow-hidden h-fit min-h-[160px] flex flex-col justify-center">
 
                         <div
-                            class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500 scale-y-0 group-hover:scale-y-100 transition-transform origin-top duration-300">
                         </div>
 
-                        <button (click)="deleteService($index)"
-                            class="absolute top-5 right-5 text-slate-300 hover:text-rose-500 transition-colors">
+                        <button (click)="deleteService($index); $event.stopPropagation()"
+                            class="absolute top-5 right-5 text-slate-300 hover:text-rose-500 transition-all hover:scale-110 p-2 z-10">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                         </button>
 
-                        <div class="space-y-4">
+                        <div class="space-y-5">
                             <input [(ngModel)]="service.name" placeholder="Hizmet Adı"
-                                class="bg-transparent border-none p-0 font-black text-slate-800 text-lg w-full pr-8 focus:ring-0 placeholder:text-slate-300">
+                                class="bg-transparent border-none p-0 font-black text-slate-800 text-xl w-full pr-10 focus:ring-0 placeholder:text-slate-300 transition-all">
 
                             <div class="flex gap-4">
                                 <div class="flex-1">
                                     <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Süre
-                                        (Dk)</label>
+                                        class="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 block mb-2 ml-1">
+                                        Süre (Dk)
+                                    </label>
                                     <input type="number" [(ngModel)]="service.duration"
-                                        class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-black text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-black text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all">
                                 </div>
                                 <div class="flex-1">
                                     <label
-                                        class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Fiyat
-                                        (₺)</label>
+                                        class="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 block mb-2 ml-1">
+                                        Fiyat (₺)
+                                    </label>
                                     <input type="number" [(ngModel)]="service.base_price"
-                                        class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-black text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-black text-slate-700 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-500/10 transition-all">
                                 </div>
                             </div>
                         </div>
@@ -215,7 +217,6 @@
                         </span>
                     </button>
                 </div>
-
             </div>
             }
 

@@ -118,14 +118,13 @@ export class SettingsComponent implements OnInit {
       .updateServices(this.services())
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: () =>
-          this.uiService.showToast('Hizmet listeniz güncellendi!', 'success'),
-        error: (err) => {
-          this.uiService.showToast(
-            'Hizmetler kaydedilirken bir hata oluştu.',
-            'error',
-          );
-          console.error('Hizmet hatası:', err);
+        next: (response) => {
+          // BURASI ÇOK KRİTİK: Backend'den gelen (ID'leri netleşmiş)
+          // listeyi sinyale geri basıyoruz.
+          if (response) {
+            this.services.set(response);
+          }
+          this.uiService.showToast('Hizmetler güncellendi!', 'success');
         },
       });
   }
@@ -161,15 +160,50 @@ export class SettingsComponent implements OnInit {
   }
 
   deleteService(index: number) {
-    // Klasik confirm yerine UiService'in şık onay modalını kullanıyoruz
+    const serviceToDelete = this.services()[index];
+
     this.uiService.openConfirm(
       'Hizmeti Sil',
-      'Bu hizmeti silmek istediğinize emin misiniz?',
+      `${serviceToDelete.name} hizmetini kalıcı olarak silmek istediğinize emin misiniz?`,
       'danger',
       () => {
-        // Kullanıcı onaylarsa çalışacak kısım
-        this.services.update((prev) => prev.filter((_, i) => i !== index));
-        this.uiService.showToast('Hizmet listeden kaldırıldı.', 'success');
+        if (serviceToDelete.id) {
+          this.isLoading.set(true);
+          this.settingsService
+            .deleteService(String(serviceToDelete.id))
+            .pipe(
+              finalize(() => {
+                this.isLoading.set(false);
+                // MODALI KAPAT: İşlem bittiğinde (başarılı veya hatalı) modalı kapat
+                this.uiService.closeConfirm?.();
+              }),
+            )
+            .subscribe({
+              next: () => {
+                this.services.update((prev) =>
+                  prev.filter((_, i) => i !== index),
+                );
+                this.uiService.showToast(
+                  'Hizmet başarıyla silindi.',
+                  'success',
+                );
+              },
+              error: (err) => {
+                this.uiService.showToast(
+                  'Hizmet silinirken bir hata oluştu.',
+                  'error',
+                );
+              },
+            });
+        } else {
+          // ID yoksa sadece ekrandan sil ve modalı kapat
+          this.services.update((prev) => prev.filter((_, i) => i !== index));
+          this.uiService.closeConfirm?.(); // Modalı kapat
+          this.uiService.showToast(
+            'Henüz kaydedilmemiş hizmet kaldırıldı.',
+            'success',
+          );
+        }
       },
     );
   }
