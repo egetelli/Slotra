@@ -16,11 +16,13 @@ import trLocale from '@fullcalendar/core/locales/tr'; // 🇹🇷 Türkçe Dil P
 import { AppointmentService } from '../../core/services/appointment.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UiService } from '../../core/services/ui.service';
+import { AdminService } from '../../core/services/admin.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FullCalendarModule],
+  imports: [CommonModule, FullCalendarModule, FormsModule],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,12 +30,29 @@ import { UiService } from '../../core/services/ui.service';
 export class CalendarComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   authService = inject(AuthService);
+  adminService = inject(AdminService);
   uiService = inject(UiService);
 
   // 🌟 MEVCUT MODAL (AÇILIR PENCERE) YÖNETİMİ
   isModalOpen = signal<boolean>(false);
   isModalClosing = signal<boolean>(false);
   selectedAppointment = signal<any>(null);
+
+  isAdmin = computed(() => this.authService.user()?.role === 'admin');
+
+  // ADMIN STATE
+  providers = signal<any[]>([]);
+  selectedProviderId = signal<string>(''); // Default boş, kimse seçili değil
+  adminAppointments = signal<any[]>([]);
+
+  // AKILLI SİNYAL: Takvim için verinin kaynağı
+  // Eğer Adminse -> adminAppointments (sadece seçili uzmanınki)
+  // Eğer Değilse -> appointmentService.appointments() (kendi verileri)
+  sourceAppointments = computed(() => {
+    return this.isAdmin()
+      ? this.adminAppointments()
+      : this.appointmentService.appointments();
+  });
 
   // ==========================================
   // 🌟 YENİ: TOAST VE CONFIRM MODAL STATE'LERİ
@@ -68,7 +87,7 @@ export class CalendarComponent implements OnInit {
 
   // Takvim Kutucuklarını Besleyen Sinyal
   calendarEvents = computed(() => {
-    return this.appointmentService.appointments().map((apt) => ({
+    return this.sourceAppointments().map((apt) => ({
       id: apt.id,
       start: apt.slot_time,
       end: apt.end_time,
@@ -179,8 +198,30 @@ export class CalendarComponent implements OnInit {
 
     if (userRole === 'provider') {
       this.appointmentService.fetchProviderAppointments();
+    } else if (this.isAdmin()) {
+      this.loadProviders();
     } else {
       this.appointmentService.fetchUpcomingAppointments();
+    }
+  }
+
+  loadProviders() {
+    this.adminService.getUsers().subscribe((users) => {
+      this.providers.set(users.filter((u) => u.role === 'provider'));
+    });
+  }
+
+  onProviderChange(id: string) {
+    this.selectedProviderId.set(id);
+    if (id) {
+      // Sadece ID varsa o uzmanı çek
+      this.adminService.getAppointments(id).subscribe({
+        next: (data) => this.adminAppointments.set(data),
+        error: () => this.adminAppointments.set([]),
+      });
+    } else {
+      // Seçim temizlenirse takvimi boşalt
+      this.adminAppointments.set([]);
     }
   }
 

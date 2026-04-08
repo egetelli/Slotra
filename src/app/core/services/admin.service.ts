@@ -74,4 +74,20 @@ export class AdminService {
       data,
     );
   }
+
+  getAppointments(providerId?: string): Observable<any[]> {
+    let url = `${this.apiUrl}/appointments`;
+    if (providerId) {
+      url += `?providerId=${providerId}`;
+    }
+    return this.http.get<ApiResponse<any[]>>(url).pipe(map((res) => res.data));
+  }
+
+  getClients(providerId?: string): Observable<any> {
+    let url = `${this.apiUrl}/clients`;
+    if (providerId) {
+      url += `?providerId=${providerId}`;
+    }
+    return this.http.get<ApiResponse<any[]>>(url);
+  }
 }

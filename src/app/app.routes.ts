@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { providerGuard } from './core/guards/provider.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   // 1. Ana Yönlendirme
@@ -68,7 +70,7 @@ export const routes: Routes = [
           import('./features/analytics/analytics.component').then(
             (m) => m.AnalyticsComponent,
           ),
-        canActivate: [roleGuard],
+        canActivate: [providerGuard],
       },
       {
         path: 'settings',
@@ -76,7 +78,7 @@ export const routes: Routes = [
           import('./features/settings/settings.component').then(
             (m) => m.SettingsComponent,
           ),
-        canActivate: [roleGuard],
+        canActivate: [providerGuard],
       },
       {
         path: 'adminsettings',
@@ -84,6 +86,7 @@ export const routes: Routes = [
           import('./features/adminsettings/adminsettings.component').then(
             (m) => m.AdminsettingsComponent,
           ),
+        canActivate: [adminGuard],
       },
     ],
   },

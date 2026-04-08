@@ -1,9 +1,7 @@
-<div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+<div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up min-h-screen">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 shrink-0">
         <div>
-            <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tight">
-                Müşteriler
-            </h1>
+            <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tight">Müşteriler</h1>
             <div class="flex items-center gap-2 mt-2">
                 <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 <p class="text-sm font-semibold text-slate-500 uppercase tracking-widest">
@@ -12,42 +10,80 @@
             </div>
         </div>
 
-        <div class="relative group">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg class="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+
+            @if (isAdmin()) {
+            <div class="relative w-full sm:w-64">
+                <select (change)="onProviderChange($any($event.target).value)" [(ngModel)]="selectedProviderId"
+                    class="w-full pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none cursor-pointer shadow-sm">
+                    <option value="">Tüm Müşteriler</option>
+                    @for (p of providers(); track p.id) {
+                    <option [value]="p.id">{{ p.full_name }}</option>
+                    }
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
             </div>
-            <input type="text" placeholder="Hızlı ara..."
-                class="w-full sm:w-80 pl-11 pr-4 py-3 bg-slate-100/50 border-none rounded-2xl text-sm font-bold text-slate-700 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all">
+            }
+
+            <div class="relative group w-full sm:w-80">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" placeholder="İsim veya e-posta ara..." [ngModel]="searchQuery()"
+                    (ngModelChange)="onSearchChange($event)"
+                    class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm">
+            </div>
         </div>
     </div>
 
     <div
-        class="bg-white/50 backdrop-blur-md border border-white/80 rounded-[2.5rem] p-4 shadow-xl shadow-slate-200/50 flex-1 overflow-hidden flex flex-col">
-        <div class="overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-separate border-spacing-y-3 min-w-[1000px]">
-                <thead>
+        class="bg-white/50 backdrop-blur-md border border-white/80 rounded-[2.5rem] p-4 lg:p-8 shadow-xl shadow-slate-200/50 flex-1 overflow-hidden flex flex-col min-h-0">
+        <div class="overflow-y-auto custom-scrollbar pr-2">
+            <table class="w-full text-left border-separate border-spacing-y-3 min-w-[1000px] relative">
+                <thead class="sticky top-0 bg-white/95 backdrop-blur-sm z-10 shadow-sm">
                     <tr class="text-slate-400">
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Müşteri Profili</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Son Etkinlik</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-center">Geçmiş Ran.</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-center">Planlanan Ran.
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-l-2xl">Müşteri
+                            Profili</th>
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em]">Son Etkinlik</th>
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] text-center">Geçmiş Ran.
                         </th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right">Net Ciro
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] text-center">Planlanan
+                            Ran.</th>
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] text-right">Net Ciro</th>
+                        <th class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] text-right">Beklenen Ciro
                         </th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right">Beklenen Ciro
+                        <th
+                            class="px-6 py-4 font-black text-[10px] uppercase tracking-[0.2em] text-right rounded-r-2xl">
                         </th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right"></th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
+                    @if (isLoading()) {
+                    @for (i of [1,2,3]; track i) {
+                    <tr class="animate-pulse bg-white/50 rounded-2xl">
+                        <td colspan="7" class="py-8 px-6">
+                            <div class="h-4 bg-slate-200 rounded w-full"></div>
+                        </td>
+                    </tr>
+                    }
+                    } @else if (filteredClients().length === 0) {
+                    <tr>
+                        <td colspan="7" class="py-16 text-center">
+                            <p class="text-slate-400 font-bold italic">Bu kritere uygun müşteri bulunamadı.</p>
+                        </td>
+                    </tr>
+                    } @else {
                     @for (client of filteredClients(); track client.customer_id) {
                     <tr class="group bg-white hover:bg-indigo-50/30 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md rounded-2xl"
                         (click)="openClientDetails(client)">
-
                         <td class="px-6 py-5 rounded-l-3xl">
                             <div class="flex items-center gap-4">
                                 <div class="relative">
@@ -77,30 +113,26 @@
                         </td>
 
                         <td class="px-6 py-5 text-center font-mono">
-                            <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl font-black text-xs">
-                                {{ client.completed_visits | number:'2.0-0' }}
-                            </span>
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-xl font-black text-xs">{{
+                                client.completed_visits | number:'2.0-0' }}</span>
                         </td>
 
                         <td class="px-6 py-5 text-center font-mono">
-                            <span class="bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-black text-xs">
-                                {{ client.upcoming_visits | number:'2.0-0' }}
-                            </span>
+                            <span class="bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-black text-xs">{{
+                                client.upcoming_visits | number:'2.0-0' }}</span>
                         </td>
 
                         <td class="px-6 py-5 text-right">
                             <div class="flex flex-col items-end">
-                                <span class="text-lg font-black text-emerald-600 tracking-tighter">
-                                    {{ client.realized_revenue | number:'1.2-2' }} <small
-                                        class="text-[10px] ml-0.5">₺</small>
-                                </span>
+                                <span class="text-lg font-black text-emerald-600 tracking-tighter">{{
+                                    client.realized_revenue | number:'1.2-2' }} <small
+                                        class="text-[10px] ml-0.5">₺</small></span>
                             </div>
                         </td>
 
                         <td class="px-6 py-5 text-right">
-                            <span class="text-sm font-bold text-slate-400/80 bg-slate-50 px-2 py-1 rounded-lg">
-                                {{ client.expected_revenue | number:'1.2-2' }} ₺
-                            </span>
+                            <span class="text-sm font-bold text-slate-400/80 bg-slate-50 px-2 py-1 rounded-lg">{{
+                                client.expected_revenue | number:'1.2-2' }} ₺</span>
                         </td>
 
                         <td class="px-6 py-5 text-right rounded-r-3xl">
@@ -115,6 +147,7 @@
                             </div>
                         </td>
                     </tr>
+                    }
                     }
                 </tbody>
             </table>

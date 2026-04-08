@@ -1,37 +1,56 @@
 <div class="h-full flex flex-col p-4 lg:p-0 animate-fade-in-up">
+
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
         <div>
             <h1 class="font-heading text-4xl font-black text-slate-900 tracking-tight">
-                Randevularım
+                {{ isAdmin() ? 'Randevu Yönetimi' : 'Randevularım' }}
             </h1>
             <div class="flex items-center gap-2 mt-2">
                 <span class="flex h-2 w-2 rounded-full bg-indigo-500 animate-pulse"></span>
                 <p class="text-sm font-semibold text-slate-500 uppercase tracking-widest">
-                    {{ appointmentService.appointments().length }} Kayıt Listeleniyor
+                    {{ displayedAppointments().length }} Kayıt Listeleniyor
                 </p>
             </div>
         </div>
+
+        @if (isAdmin()) {
+        <div class="relative w-full sm:w-72">
+            <select (change)="onProviderChange($any($event.target).value)" [(ngModel)]="selectedProviderId"
+                class="w-full pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all appearance-none cursor-pointer shadow-sm">
+                <option value="">Tüm Uzmanlar (Tüm Randevular)</option>
+                @for (p of providers(); track p.id) {
+                <option [value]="p.id">{{ p.full_name }}</option>
+                }
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+        </div>
+        }
     </div>
 
     <div
         class="flex-1 min-w-0 bg-white/50 backdrop-blur-xl border border-white/90 rounded-[3rem] shadow-inner p-4 lg:p-8 overflow-hidden flex flex-col">
 
-
-        <div class="hidden md:block overflow-x-auto custom-scrollbar">
+        <div class="hidden md:block overflow-y-auto custom-scrollbar">
             <table class="w-full text-left border-separate border-spacing-y-3 min-w-[900px]">
-                <thead>
+                <thead class="sticky top-0 bg-white/80 backdrop-blur-md z-10">
                     <tr class="text-slate-400">
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">
+                        <th class="px-6 pb-2 pt-2 font-black text-[10px] uppercase tracking-[0.2em] rounded-l-2xl">
                             {{ authService.user()?.role === 'provider' ? 'Müşteri' : 'Uzman / Kişi' }}
                         </th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Tarih & Saat</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Hizmet Detayı</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em]">Durum</th>
-                        <th class="px-6 pb-2 font-black text-[10px] uppercase tracking-[0.2em] text-right">İşlemler</th>
+                        <th class="px-6 pb-2 pt-2 font-black text-[10px] uppercase tracking-[0.2em]">Tarih & Saat</th>
+                        <th class="px-6 pb-2 pt-2 font-black text-[10px] uppercase tracking-[0.2em]">Hizmet Detayı</th>
+                        <th class="px-6 pb-2 pt-2 font-black text-[10px] uppercase tracking-[0.2em]">Durum</th>
+                        <th
+                            class="px-6 pb-2 pt-2 font-black text-[10px] uppercase tracking-[0.2em] text-right rounded-r-2xl">
+                            İşlemler</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
-                    @if (appointmentService.isLoading()) {
+                    @if (displayedLoading()) {
                     @for (i of [1,2,3,4,5]; track i) {
                     <tr class="animate-pulse bg-white/50 rounded-2xl">
                         <td colspan="5" class="py-8 px-6">
@@ -40,28 +59,32 @@
                     </tr>
                     }
                     }
-                    @else if (appointmentService.appointments().length === 0) {
+                    @else if (displayedAppointments().length === 0) {
                     <tr>
                         <td colspan="5" class="py-20 text-center">
-                            <p class="text-slate-400 font-bold italic">Henüz bir randevu kaydı bulunmuyor.</p>
+                            <p class="text-slate-400 font-bold italic">Bu kritere uygun randevu kaydı bulunmuyor.</p>
                         </td>
                     </tr>
                     }
                     @else {
-                    @for (apt of appointmentService.appointments(); track apt.id) {
+                    @for (apt of displayedAppointments(); track apt.id) {
                     <tr
                         class="group bg-white hover:bg-indigo-50/30 transition-all duration-300 shadow-sm hover:shadow-md rounded-2xl">
                         <td class="px-6 py-5 rounded-l-3xl">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black text-xs group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black text-xs group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
                                     {{ (authService.user()?.role === 'provider' ? apt.customer_name :
                                     apt.provider_name)?.charAt(0) | uppercase }}
                                 </div>
-                                <span class="font-black text-slate-800 tracking-tight">
-                                    {{ authService.user()?.role === 'provider' ? apt.customer_name : (apt.provider_name
-                                    || 'Bilinmeyen Uzman') }}
-                                </span>
+                                <div class="flex flex-col">
+                                    <span class="font-black text-slate-800 tracking-tight">
+                                        {{ authService.user()?.role === 'provider' ? apt.customer_name :
+                                        (apt.provider_name || 'Bilinmeyen Uzman') }}
+                                    </span>
+                                    @if(isAdmin()) { <span class="text-[10px] font-bold text-slate-400 mt-0.5">Müşteri:
+                                        {{ apt.customer_name }}</span> }
+                                </div>
                             </div>
                         </td>
 
@@ -74,8 +97,12 @@
                             </div>
                         </td>
 
-                        <td class="px-6 py-5 font-bold text-slate-500">
-                            {{ apt.service_name || 'Standart Hizmet' }}
+                        <td class="px-6 py-5">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-700">{{ apt.service_name || 'Standart Hizmet'
+                                    }}</span>
+                                <span class="text-[10px] font-black text-emerald-600">{{ apt.total_price }} ₺</span>
+                            </div>
                         </td>
 
                         <td class="px-6 py-5">
@@ -88,9 +115,10 @@
 
                         <td class="px-6 py-5 text-right rounded-r-3xl">
                             <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                @if (authService.user()?.role === 'provider' && apt.status === 'pending') {
-                                <button (click)="approveAppointment(apt.id)"
-                                    class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm flex items-center justify-center">
+                                @if ((authService.user()?.role === 'provider' || isAdmin()) && apt.status === 'pending')
+                                {
+                                <button (click)="approveAppointment(apt.id)" title="Onayla"
+                                    class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-sm flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                             d="M5 13l4 4L19 7" />
@@ -98,7 +126,7 @@
                                 </button>
                                 }
                                 @if (apt.status === 'booked' || apt.status === 'pending') {
-                                <button (click)="cancelAppointment(apt.id)"
+                                <button (click)="cancelAppointment(apt.id)" title="İptal Et"
                                     class="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm flex items-center justify-center">
                                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -115,8 +143,8 @@
             </table>
         </div>
 
-        <div class="md:hidden flex flex-col gap-4">
-            @for (apt of appointmentService.appointments(); track apt.id) {
+        <div class="md:hidden flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
+            @for (apt of displayedAppointments(); track apt.id) {
             <div class="bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/40 border border-white space-y-4">
                 <div class="flex justify-between items-start">
                     <div class="flex items-center gap-3">
@@ -149,10 +177,11 @@
                         <span class="text-sm font-black text-slate-700 tracking-tight">{{ apt.slot_time | date:'dd MMM,
                             HH:mm' }}</span>
                     </div>
+                    <span class="text-sm font-black text-emerald-600">{{ apt.total_price }} ₺</span>
                 </div>
 
                 <div class="flex gap-2">
-                    @if (authService.user()?.role === 'provider' && apt.status === 'pending') {
+                    @if ((authService.user()?.role === 'provider' || isAdmin()) && apt.status === 'pending') {
                     <button (click)="approveAppointment(apt.id)"
                         class="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-black text-sm shadow-lg shadow-emerald-100">Onayla</button>
                     }
@@ -165,5 +194,6 @@
             </div>
             }
         </div>
+
     </div>
 </div>

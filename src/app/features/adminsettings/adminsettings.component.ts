@@ -3,6 +3,7 @@ import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service';
+import { UiService } from '../../core/services/ui.service'; // Yolu projene göre kontrol et
 
 type SettingsTab = 'users' | 'providers' | 'system';
 
@@ -15,6 +16,7 @@ type SettingsTab = 'users' | 'providers' | 'system';
 })
 export class AdminsettingsComponent implements OnInit {
   private adminService = inject(AdminService);
+  private uiService = inject(UiService); // UiService inject edildi
 
   activeTab = signal<SettingsTab>('users');
 
@@ -61,7 +63,13 @@ export class AdminsettingsComponent implements OnInit {
         this.users.set(data);
         this.isLoadingUsers.set(false);
       },
-      error: () => this.isLoadingUsers.set(false),
+      error: () => {
+        this.isLoadingUsers.set(false);
+        this.uiService.showToast(
+          'Kullanıcılar yüklenirken bir hata oluştu.',
+          'error',
+        );
+      },
     });
   }
 
@@ -94,16 +102,42 @@ export class AdminsettingsComponent implements OnInit {
       ? this.adminService.updateUser(this.selectedUser().id, data)
       : this.adminService.createUser(data);
 
-    obs.subscribe(() => {
-      this.loadUsers();
-      this.isModalOpen.set(false);
+    obs.subscribe({
+      next: () => {
+        this.loadUsers();
+        this.isModalOpen.set(false);
+        this.uiService.showToast('Kullanıcı başarıyla kaydedildi.', 'success');
+      },
+      error: () => {
+        this.uiService.showToast(
+          'Kullanıcı kaydedilirken hata oluştu.',
+          'error',
+        );
+      },
     });
   }
 
   confirmDelete(id: string) {
-    if (confirm('Bu kullanıcıyı tamamen silmek istediğinize emin misiniz?')) {
-      this.adminService.deleteUser(id).subscribe(() => this.loadUsers());
-    }
+    // uiService.openConfirm metodunu kullanarak callback ile silme işlemi yapıyoruz
+    this.uiService.openConfirm(
+      'Kullanıcıyı Sil',
+      'Bu kullanıcıyı tamamen silmek istediğinize emin misiniz?',
+      'danger',
+      () => {
+        // action fonksiyonu
+        this.adminService.deleteUser(id).subscribe({
+          next: () => {
+            this.loadUsers();
+            this.uiService.showToast('Kullanıcı başarıyla silindi.', 'success');
+            this.uiService.closeConfirm(); // İşlem bitince confirm modalı kapat
+          },
+          error: () => {
+            this.uiService.showToast('Silme işlemi başarısız oldu.', 'error');
+            this.uiService.closeConfirm();
+          },
+        });
+      },
+    );
   }
 
   // ==========================================
@@ -113,16 +147,15 @@ export class AdminsettingsComponent implements OnInit {
   selectedProviderId = signal<string | null>(null);
 
   providerProfileForm = {
-    name: '', // bio silindi, name eklendi
+    name: '',
     title: '',
   };
   services = signal<any[]>([]);
-  workingHours = signal<any[]>([]); // Sadece DB'den gelen gerçek veriler tutulacak
+  workingHours = signal<any[]>([]);
 
   isServiceModalOpen = signal(false);
   selectedService = signal<any | null>(null);
 
-  // Modelin DB tablosuna (duration_minutes, base_price) uygun hali
   serviceForm = {
     name: '',
     description: '',
@@ -137,36 +170,32 @@ export class AdminsettingsComponent implements OnInit {
     }
     this.selectedProviderId.set(id);
 
-    // 1. DÜZELTME: Veritabanından gelen kolon isimlerine göre eşle
     const p = this.providers().find((x) => x.id === id);
 
     if (p) {
       this.providerProfileForm = {
-        title: p.title || '', // 'title' kolonu "Oto Kuaför"ü getirmeli
-        name: p.name || p.full_name || '', // Tabloda 'name' olduğu için p.name kullanmalısın
+        title: p.title || '',
+        name: p.name || p.full_name || '',
       };
     }
 
-    // 2. DÜZELTME: Eğer bu metod formu sıfırlıyorsa, içini kontrol etmelisin.
     this.loadProviderData(id);
   }
 
-  // Hem Servisleri hem de Çalışma Saatlerini gerçek Backend'den çekiyoruz
   loadProviderData(providerId: string) {
-    // 1. Servisleri Getir
     this.adminService
       .getProviderServices(providerId)
       .subscribe((data) => this.services.set(data || []));
 
-    // 2. Çalışma Saatlerini Getir (MOCK YOK, GERÇEK API ÇAĞRISI)
     this.adminService.getWorkingHours(providerId).subscribe((data) => {
       this.workingHours.set(data || []);
     });
   }
 
   saveProviderProfile() {
-    alert(
+    this.uiService.showToast(
       'Profil bilgileri kaydedildi (Backend bağlantısı yapılınca çalışacak)',
+      'success',
     );
   }
 
@@ -197,30 +226,65 @@ export class AdminsettingsComponent implements OnInit {
 
     this.adminService
       .saveService(providerId, this.serviceForm, this.selectedService()?.id)
-      .subscribe(() => {
-        this.loadProviderData(providerId); // Servis eklendiğinde tabloyu yenile
-        this.isServiceModalOpen.set(false);
+      .subscribe({
+        next: () => {
+          this.loadProviderData(providerId);
+          this.isServiceModalOpen.set(false);
+          this.uiService.showToast('Hizmet başarıyla kaydedildi.', 'success');
+        },
+        error: () => {
+          this.uiService.showToast(
+            'Hizmet kaydedilirken hata oluştu.',
+            'error',
+          );
+        },
       });
   }
 
   deleteService(id: string) {
-    if (confirm('Bu hizmeti silmek istediğinize emin misiniz?')) {
-      this.adminService.deleteService(id).subscribe(() => {
-        if (this.selectedProviderId())
-          this.loadProviderData(this.selectedProviderId()!);
-      });
-    }
+    // uiService.openConfirm kullanılarak callback ile silme
+    this.uiService.openConfirm(
+      'Hizmeti Sil',
+      'Bu hizmeti silmek istediğinize emin misiniz?',
+      'danger',
+      () => {
+        // action fonksiyonu
+        this.adminService.deleteService(id).subscribe({
+          next: () => {
+            if (this.selectedProviderId()) {
+              this.loadProviderData(this.selectedProviderId()!);
+            }
+            this.uiService.showToast('Hizmet başarıyla silindi.', 'success');
+            this.uiService.closeConfirm();
+          },
+          error: () => {
+            this.uiService.showToast('Hizmet silinirken hata oluştu.', 'error');
+            this.uiService.closeConfirm();
+          },
+        });
+      },
+    );
   }
 
   saveWorkingHours() {
     const providerId = this.selectedProviderId();
     if (!providerId) return;
 
-    // workingHours sinyali içindeki liste doğrudan backend'in beklediği formattadır
     this.adminService
       .updateWorkingHours(providerId, this.workingHours())
-      .subscribe(() => {
-        alert('Çalışma saatleri başarıyla güncellendi!');
+      .subscribe({
+        next: () => {
+          this.uiService.showToast(
+            'Çalışma saatleri başarıyla güncellendi!',
+            'success',
+          );
+        },
+        error: () => {
+          this.uiService.showToast(
+            'Saatler güncellenirken hata oluştu.',
+            'error',
+          );
+        },
       });
   }
 
@@ -244,6 +308,9 @@ export class AdminsettingsComponent implements OnInit {
 
   saveSystemSettings() {
     console.log('Kaydedilecek Ayarlar:', this.systemSettings());
-    alert('Sistem ayarları güncellendi!');
+    this.uiService.showToast(
+      'Sistem ayarları başarıyla güncellendi!',
+      'success',
+    );
   }
 }
