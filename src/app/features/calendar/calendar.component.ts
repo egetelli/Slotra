@@ -103,7 +103,7 @@ export class CalendarComponent implements OnInit {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     locale: trLocale,
     slotMinTime: '08:00:00',
-    slotMaxTime: '23:00:00',
+    slotMaxTime: '22:00:00',
     allDaySlot: false,
     editable: false,
     selectable: true,
@@ -113,7 +113,7 @@ export class CalendarComponent implements OnInit {
     eventMinHeight: 36,
     eventDisplay: 'block',
     eventClick: this.handleEventClick.bind(this),
-    height: '70vh',
+    height: '100%',
 
     // 🌟 1. RESPONSIVE YENİLİK: Mobilde 'Gün', Masaüstünde 'Hafta' görünümü ile başlat
     initialView:

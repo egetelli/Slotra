@@ -263,8 +263,9 @@
                 </div>
 
                 <div
-                    class="h-auto lg:flex-1 lg:min-h-0 min-h-[250px] bg-white border border-slate-200 rounded-[2rem] p-7 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-200/60 transition-all duration-300 flex flex-col">
-                    <div class="flex items-center gap-3 mb-6 shrink-0">
+                    class="h-auto lg:flex-1 lg:min-h-0 min-h-[250px] bg-white border border-slate-200 rounded-[2rem] p-5 shadow-sm hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-200/60 transition-all duration-300 flex flex-col">
+
+                    <div class="flex items-center gap-3 mb-4 shrink-0">
                         <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -273,11 +274,12 @@
                         </div>
                         <h3 class="text-slate-900 text-[16px] font-bold">Haftalık Doluluk</h3>
                     </div>
-                    <div class="flex-1 space-y-3 flex flex-col justify-center">
+
+                    <div class="flex-1 space-y-1.5 flex flex-col justify-center">
                         @if (isLoading()) {
-                        @for (i of [1, 2, 3, 4, 5]; track i) {
+                        @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
                         <div>
-                            <div class="flex justify-between mb-1.5">
+                            <div class="flex justify-between mb-1">
                                 <div class="bg-slate-200 animate-pulse w-20 h-3.5 rounded"></div>
                                 <div class="bg-slate-200 animate-pulse w-8 h-3.5 rounded"></div>
                             </div>
@@ -287,7 +289,7 @@
                         } @else {
                         @for (item of occupancyRates(); track item.day) {
                         <div class="group">
-                            <div class="flex justify-between text-xs mb-1.5">
+                            <div class="flex justify-between text-xs mb-1">
                                 <span class="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
                                     {{ item.day }}
                                 </span>
