@@ -18,7 +18,7 @@ export interface ApiResponse<T> {
 })
 export class AppointmentService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:3000/api/appointments';
+  private readonly API_URL = 'http://localhost:8080/api/appointments';
 
   // State Management
   private _appointments = signal<Appointment[]>([]);

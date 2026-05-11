@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 export class SocketService implements OnDestroy {
   private socket: Socket | null = null;
   private authService = inject(AuthService);
-  private readonly SOCKET_URL = 'http://localhost:3000'; // Backend adresin
+  private readonly SOCKET_URL = 'http://localhost:8080'; // Backend adresin
 
   /**
    * Sunucuya bağlanır ve kullanıcıyı kendi özel odasına (Room) dahil eder.

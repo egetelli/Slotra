@@ -25,7 +25,7 @@ export interface ServiceItem {
 export class SettingsService {
   private http = inject(HttpClient);
   // Diğer servislerinle uyumlu olması için tam URL kullanıyoruz
-  private apiUrl = 'http://localhost:3000/api/settings';
+  private apiUrl = 'http://localhost:8080/api/settings';
 
   // Tüm ayarları tek seferde çek
   getAllSettings(): Observable<any> {

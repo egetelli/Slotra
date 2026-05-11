@@ -9,7 +9,7 @@ import { ApiResponse } from '../models/api-response.model';
 })
 export class ProviderService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/providers'; // Environment'a alabilirsin
+  private apiUrl = 'http://localhost:8080/api/providers'; // Environment'a alabilirsin
 
   getProviders(): Observable<Provider[]> {
     return this.http

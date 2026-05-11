@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:3000/api/auth';
+  private readonly API_URL = 'http://localhost:8080/api/auth';
 
   // ZERO-STORAGE: Başlangıçta her şey null, localstorage yok
   private _user = signal<User | null>(null);

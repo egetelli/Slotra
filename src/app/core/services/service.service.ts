@@ -9,7 +9,7 @@ import { ApiResponse } from '../models/api-response.model';
 })
 export class ServiceService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/services';
+  private apiUrl = 'http://localhost:8080/api/services';
 
   getActiveServices(): Observable<ServiceItem[]> {
     return this.http
@@ -22,7 +22,7 @@ export class ServiceService {
     return this.http
       .get<
         ApiResponse<ServiceItem[]>
-      >(`http://localhost:3000/api/providers/${providerId}/services`)
+      >(`http://localhost:8080/api/providers/${providerId}/services`)
       .pipe(map((response) => response.data));
   }
 }

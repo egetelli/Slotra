@@ -9,7 +9,7 @@ import { AdminDashboardData } from '../models/admin-dashboard.model';
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/api/admin';
+  private apiUrl = 'http://localhost:8080/api/admin';
 
   getDashboardSummary(): Observable<AdminDashboardData> {
     return this.http
